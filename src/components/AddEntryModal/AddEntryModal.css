@@ -1,0 +1,202 @@
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 42, 38, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1rem;
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 380px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+.modal-close:hover { background: var(--color-border); color: var(--color-text); }
+
+.modal-body {
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.type-tabs {
+  display: flex;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.type-tab {
+  flex: 1;
+  padding: 0.4rem;
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.type-tab.active {
+  background: var(--color-accent);
+  color: white;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.form-field label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-field select,
+.form-field input[type="text"],
+.form-field input[type="number"] {
+  width: 100%;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-field select:focus,
+.form-field input:focus {
+  border-color: var(--color-accent);
+}
+
+.minutes-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.5rem;
+}
+
+.no-jobs-msg {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+.no-jobs-msg a { color: var(--color-accent); }
+
+.job-info-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.65rem;
+  text-align: center;
+}
+
+.ji-cell {}
+.ji-val {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+.ji-val.remaining { color: var(--color-success); }
+.ji-val.done      { color: var(--color-text-muted); }
+.ji-label {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.15rem;
+}
+
+.cat-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cat-tab {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-raised);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cat-tab.employment { background: var(--color-employment); border-color: var(--color-employment); color: white; }
+.cat-tab.childcare  { background: var(--color-childcare); border-color: var(--color-childcare); color: white; }
+
+.modal-footer {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.btn-cancel {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-cancel:hover { color: var(--color-text); }
+
+.btn-save {
+  background: var(--color-accent);
+  border: none;
+  color: white;
+  padding: 0.45rem 1.25rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-save:hover:not(:disabled) { background: var(--color-accent-hover); }
+.btn-save:disabled { opacity: 0.6; cursor: not-allowed; }

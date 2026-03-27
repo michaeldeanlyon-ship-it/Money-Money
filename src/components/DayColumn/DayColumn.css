@@ -1,0 +1,90 @@
+.day-col {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+
+.day-col.drop-target {
+  border-color: var(--color-accent);
+  border-style: dashed;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+}
+
+.day-head {
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius) var(--radius) 0 0;
+  cursor: pointer;
+  user-select: none;
+}
+.day-head:hover { background: var(--color-border); }
+
+.day-name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.day-num {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.day-num.today {
+  color: var(--color-accent);
+}
+
+.day-entries {
+  flex: 1;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.drop-hint {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--color-accent);
+  padding: 1rem 0;
+  font-style: italic;
+}
+
+.day-footer {
+  padding: 0.4rem 0.65rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.day-total {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.day-add-btn {
+  font-size: 0.72rem;
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.day-add-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}

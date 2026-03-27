@@ -1,0 +1,83 @@
+.entry-card {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.6rem;
+}
+
+.ec-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.ec-title {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--color-text);
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ec-actions {
+  display: flex;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.ec-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.ec-btn:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.ec-delete:hover {
+  background: var(--color-danger);
+  color: white;
+}
+
+.ec-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: space-between;
+}
+
+.ec-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: white;
+  padding: 0.1rem 0.4rem;
+  border-radius: 99px;
+}
+
+.ec-badge.frilans    { background: var(--color-frilans); }
+.ec-badge.invoicery  { background: var(--color-invoicery); }
+.ec-badge.employment { background: var(--color-employment); }
+.ec-badge.childcare  { background: var(--color-childcare); }
+
+.ec-time {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-left: auto;
+}

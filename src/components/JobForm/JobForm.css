@@ -1,0 +1,110 @@
+.job-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.jf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.jf-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.jf-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.65rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.jf-input:focus {
+  border-color: var(--color-accent);
+}
+
+.jf-label-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.jf-label-btn {
+  padding: 0.3rem 0.9rem;
+  border-radius: 99px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 2px solid transparent;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.jf-label-btn.active {
+  opacity: 1;
+  border-color: currentColor;
+}
+.jf-label-btn.label-frilans {
+  background: rgba(90,143,196,0.15);
+  color: var(--color-frilans);
+}
+.jf-label-btn.label-invoicery {
+  background: rgba(155,109,181,0.15);
+  color: var(--color-invoicery);
+}
+
+.jf-time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.jf-time-input {
+  width: 72px;
+}
+
+.jf-time-sep {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.jf-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.jf-btn-cancel {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.jf-btn-cancel:hover { background: var(--color-surface-raised); }
+
+.jf-btn-save {
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+}
+.jf-btn-save:hover { background: var(--color-accent-hover); }
+.jf-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }

@@ -1,0 +1,112 @@
+.month-grid {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.mg-header,
+.mg-row {
+  display: grid;
+  grid-template-columns: 52px repeat(7, 1fr);
+}
+
+.mg-header {
+  background: var(--color-surface-raised);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mg-head-cell {
+  padding: 0.4rem 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.mg-row {
+  border-bottom: 1px solid var(--color-border);
+  min-height: 70px;
+}
+.mg-row:last-child { border-bottom: none; }
+
+.mg-wk-cell {
+  background: var(--color-surface-raised);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0.3rem 0.2rem;
+  cursor: pointer;
+}
+.mg-wk-cell:hover { background: var(--color-border); }
+
+.wk-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.wk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.wk-pct {
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+.wk-pct.exact { color: var(--color-success); }
+.wk-pct.off   { color: var(--color-danger); }
+
+.mg-day {
+  border-right: 1px solid var(--color-border);
+  padding: 0.35rem 0.4rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  position: relative;
+  transition: background 0.1s;
+}
+.mg-day:last-child { border-right: none; }
+.mg-day:hover { background: var(--color-surface-raised); }
+
+.mg-day.other-month { opacity: 0.35; }
+
+.mg-day-num {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.today-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--color-accent);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.72rem;
+}
+
+.mg-day-time {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+}
+
+.mg-day-bar {
+  height: 3px;
+  border-radius: 99px;
+  width: 100%;
+  margin-top: auto;
+}

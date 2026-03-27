@@ -1,32 +1,31 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AppProvider } from './context/AppContext'
+import Layout from './components/Layout/Layout'
+import WeekPage from './pages/WeekPage'
+import MonthPage from './pages/MonthPage'
+import DayPage from './pages/DayPage'
+import JobsPage from './pages/JobsPage'
+import { today, getISOWeek } from './utils/dateUtils'
 
-function Home() {
-  return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Money Money</h1>
-      <p style={{ color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
-        App coming soon.
-      </p>
-    </div>
-  )
-}
-
-function NotFound() {
-  return (
-    <div style={{ padding: '2rem' }}>
-      <h1>404</h1>
-      <p style={{ color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
-        Page not found.
-      </p>
-    </div>
-  )
+function DefaultRedirect() {
+  const t = today()
+  const { year, week } = getISOWeek(t)
+  return <Navigate to={`/week/${year}/${week}`} replace />
 }
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <AppProvider>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<DefaultRedirect />} />
+          <Route path="/week/:year/:week" element={<WeekPage />} />
+          <Route path="/month/:year/:month" element={<MonthPage />} />
+          <Route path="/day/:date" element={<DayPage />} />
+          <Route path="/jobs" element={<JobsPage />} />
+          <Route path="*" element={<DefaultRedirect />} />
+        </Routes>
+      </Layout>
+    </AppProvider>
   )
 }

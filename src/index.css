@@ -1,45 +1,39 @@
 /* ── CSS Custom Properties ── */
 :root {
-  /* Colours */
-  --color-bg: #0f1117;
-  --color-surface: #1a1d27;
-  --color-surface-raised: #22263a;
-  --color-border: #2e3350;
-  --color-text: #e8eaf0;
-  --color-text-muted: #7a82a0;
-  --color-accent: #4f8ef7;
-  --color-accent-hover: #6ba3ff;
-  --color-danger: #e05c5c;
-  --color-success: #4caf82;
+  --color-bg:             #faf9f6;
+  --color-surface:        #ffffff;
+  --color-surface-raised: #f5f3ee;
+  --color-border:         #e8e4dc;
+  --color-text:           #2c2a26;
+  --color-text-muted:     #8a8478;
+  --color-accent:         #c9a84c;
+  --color-accent-hover:   #b8953f;
+  --color-danger:         #d9534f;
+  --color-success:        #6aaa7c;
+  --color-frilans:        #5a8fc4;
+  --color-invoicery:      #9b6db5;
+  --color-employment:     #5aaa72;
+  --color-childcare:      #c48a5a;
 
-  /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  /* Spacing & shape */
   --radius-sm: 4px;
-  --radius: 8px;
-  --radius-lg: 14px;
+  --radius:    8px;
+  --radius-lg: 12px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow:    0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* ── Reset ── */
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   height: 100%;
 }
 
@@ -47,8 +41,8 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -58,17 +52,18 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  color: var(--color-accent-hover);
-}
-
 button {
   cursor: pointer;
   font-family: inherit;
+  font-size: inherit;
 }
 
-img,
-svg {
+img, svg {
   display: block;
   max-width: 100%;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
 }
