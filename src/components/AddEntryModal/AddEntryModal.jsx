@@ -162,8 +162,8 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
                 value={hours}
                 onChange={e => setHours(e.target.value)}
                 placeholder="e.g. 1.5 (= 1h 30m)"
-                min="0.1"
-                step="0.25"
+                min="0"
+                step="any"
                 required
                 autoFocus={!preselectedJob}
               />
