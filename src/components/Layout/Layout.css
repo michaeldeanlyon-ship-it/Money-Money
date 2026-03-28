@@ -42,7 +42,44 @@
 .nav-right {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
 }
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--color-border);
+}
+
+.nav-avatar-initials {
+  background: var(--color-accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-signout {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.nav-signout:hover { color: var(--color-danger); }
 
 .nav-jobs-link {
   font-size: 0.85rem;

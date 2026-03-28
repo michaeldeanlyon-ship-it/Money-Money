@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
-export function useJobs() {
+export function useJobs(enabled = true) {
   const [jobs, setJobs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const fetchJobs = useCallback(async () => {
+    if (!enabled) return
     try {
       const { data, error } = await supabase.from('jobs').select('*').order('name')
       if (error) throw error
@@ -16,7 +17,7 @@ export function useJobs() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [enabled])
 
   useEffect(() => { fetchJobs() }, [fetchJobs])
 
