@@ -11,7 +11,9 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
   const [selectedJobId, setSelectedJobId] = useState(
     initialEntry?.job_id || preselectedJob?.id || (jobs[0]?.id || '')
   )
-  const [minutes, setMinutes] = useState(initialEntry?.minutes?.toString() || '')
+  const [hours, setHours] = useState(
+    initialEntry?.minutes ? (initialEntry.minutes / 60).toString() : ''
+  )
   const [paidCategory, setPaidCategory] = useState(initialEntry?.paid_time_category || 'employment')
   const [paidName, setPaidName] = useState(initialEntry?.paid_time_name || '')
   const [jobTimeSpent, setJobTimeSpent] = useState(null)
@@ -41,7 +43,7 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const mins = parseInt(minutes, 10)
+    const mins = Math.round(parseFloat(hours) * 60)
     if (!mins || mins <= 0) return
 
     setSaving(true)
@@ -154,18 +156,19 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
             )}
 
             <div className="form-field">
-              <label>Minutes</label>
+              <label>Hours</label>
               <input
                 type="number"
-                value={minutes}
-                onChange={e => setMinutes(e.target.value)}
-                placeholder="e.g. 360 (= 6h)"
-                min="1"
+                value={hours}
+                onChange={e => setHours(e.target.value)}
+                placeholder="e.g. 1.5 (= 1h 30m)"
+                min="0.1"
+                step="0.25"
                 required
                 autoFocus={!preselectedJob}
               />
-              {minutes && parseInt(minutes) > 0 && (
-                <span className="minutes-hint">{minutesToHHMM(parseInt(minutes))}</span>
+              {hours && parseFloat(hours) > 0 && (
+                <span className="minutes-hint">{minutesToHHMM(Math.round(parseFloat(hours) * 60))}</span>
               )}
             </div>
           </div>
