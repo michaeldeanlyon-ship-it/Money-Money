@@ -41,8 +41,11 @@ export default function MonthGrid({ weeks, entries }) {
             {/* Day cells */}
             {days.map(({ date, isCurrentMonth }) => {
               const dayEntries = entries.filter(e => e.date === date)
-              const dayTotal = dayEntries.reduce((sum, e) => sum + e.minutes, 0)
-              const hasData = dayTotal > 0
+              const childcare  = dayEntries.filter(e => e.type === 'paid_time' && e.paid_time_category === 'childcare').reduce((s, e) => s + e.minutes, 0)
+              const employment = dayEntries.filter(e => e.type === 'paid_time' && e.paid_time_category === 'employment').reduce((s, e) => s + e.minutes, 0)
+              const frilans    = dayEntries.filter(e => e.type === 'job' && e.job_label === 'Frilans').reduce((s, e) => s + e.minutes, 0)
+              const invoicery  = dayEntries.filter(e => e.type === 'job' && e.job_label === 'Invoicery').reduce((s, e) => s + e.minutes, 0)
+              const hasData    = (childcare + employment + frilans + invoicery) > 0
 
               return (
                 <div
@@ -54,13 +57,12 @@ export default function MonthGrid({ weeks, entries }) {
                     {dayOfMonth(date)}
                   </span>
                   {hasData && (
-                    <>
-                      <span className="mg-day-time">{minutesToHHMM(dayTotal)}</span>
-                      <div className="mg-day-bar" style={{
-                        background: 'var(--color-accent)',
-                        opacity: 0.6 + (dayTotal / 480) * 0.4,
-                      }} />
-                    </>
+                    <div className="mg-day-pills">
+                      {childcare  > 0 && <span className="mg-pill mg-pill-childcare">{minutesToHHMM(childcare)}</span>}
+                      {employment > 0 && <span className="mg-pill mg-pill-employment">{minutesToHHMM(employment)}</span>}
+                      {frilans    > 0 && <span className="mg-pill mg-pill-frilans">{minutesToHHMM(frilans)}</span>}
+                      {invoicery  > 0 && <span className="mg-pill mg-pill-invoicery">{minutesToHHMM(invoicery)}</span>}
+                    </div>
                   )}
                 </div>
               )

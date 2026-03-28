@@ -8,7 +8,7 @@ export function minutesToHHMM(minutes) {
 }
 
 export function percentOf2400(minutes) {
-  return Math.round((minutes / 2400) * 10) / 10
+  return Math.round(minutes / 24)
 }
 
 export function computeWeekSummary(weekDates, entries) {

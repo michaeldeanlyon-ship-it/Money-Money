@@ -99,14 +99,25 @@
   font-size: 0.72rem;
 }
 
-.mg-day-time {
-  font-size: 0.65rem;
-  color: var(--color-text-muted);
+.mg-day-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  margin-top: 0.15rem;
 }
 
-.mg-day-bar {
-  height: 3px;
-  border-radius: 99px;
-  width: 100%;
-  margin-top: auto;
+.mg-pill {
+  font-size: 0.58rem;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+.mg-pill-childcare  { background: rgba(196,138,90,0.18);  color: var(--color-childcare); }
+.mg-pill-employment { background: rgba(90,170,114,0.18);  color: var(--color-employment); }
+.mg-pill-frilans    { background: rgba(90,143,196,0.18);  color: var(--color-frilans); }
+.mg-pill-invoicery  { background: rgba(155,109,181,0.18); color: var(--color-invoicery); }
