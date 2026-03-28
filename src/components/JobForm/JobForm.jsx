@@ -18,11 +18,14 @@ export default function JobForm({ initialJob = null, onSave, onCancel }) {
     e.preventDefault()
     const h = parseInt(runtimeHours) || 0
     const m = parseInt(runtimeMins) || 0
-    const runtime_minutes = h * 60 + m
-    if (!name.trim() || runtime_minutes <= 0) return
+    const runtimeMinutes = h * 60 + m
+    if (!name.trim() || runtimeMinutes <= 0) return
     setSaving(true)
-    await onSave({ name: name.trim(), label, runtime_minutes })
-    setSaving(false)
+    try {
+      await onSave({ name: name.trim(), label, runtimeMinutes })
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
