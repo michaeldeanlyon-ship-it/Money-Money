@@ -27,6 +27,7 @@ export default function DayPage() {
 
   const daySummary = computeDaySummary(date, entries)
   const weekSummary = computeWeekSummary(weekDays, weekEntries)
+  const { remainingMinutes: weekRemaining, overMinutes: weekOver } = weekSummary
 
   function goToPrev() {
     navigate(`/day/${addDays(date, -1)}`)
@@ -86,11 +87,20 @@ export default function DayPage() {
             </div>
 
             {/* Week availability */}
-            {!weekSummary.isExact && (
+            {!weekSummary.isExact && weekRemaining > 0 && (
               <div className="day-week-avail">
                 <span className="dwa-icon">&#9719;</span>
                 <span>
-                  <strong>{minutesToHHMM(weekSummary.remainingMinutes)}</strong> still to allocate this week
+                  <strong>{minutesToHHMM(weekRemaining)}</strong> still needed this week
+                  ({weekSummary.percent}% of 40h logged)
+                </span>
+              </div>
+            )}
+            {!weekSummary.isExact && weekOver > 0 && (
+              <div className="day-week-avail over">
+                <span className="dwa-icon">&#9888;</span>
+                <span>
+                  <strong>{minutesToHHMM(weekOver)}</strong> over this week
                   ({weekSummary.percent}% of 40h logged)
                 </span>
               </div>

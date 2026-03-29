@@ -15,11 +15,13 @@ export function computeWeekSummary(weekDates, entries) {
   const weekEntries = entries.filter(e => weekDates.includes(e.date))
   const totalMinutes = weekEntries.reduce((sum, e) => sum + e.minutes, 0)
   const percent = percentOf2400(totalMinutes)
+  const isOver = totalMinutes > 2400
   return {
     totalMinutes,
     percent,
     isExact: totalMinutes === 2400,
-    remainingMinutes: Math.max(0, 2400 - totalMinutes),
+    remainingMinutes: isOver ? 0 : 2400 - totalMinutes,
+    overMinutes: isOver ? totalMinutes - 2400 : 0,
   }
 }
 

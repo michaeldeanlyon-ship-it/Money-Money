@@ -2,7 +2,7 @@ import ProgressBar from '../ProgressBar/ProgressBar'
 import { minutesToHHMM } from '../../utils/timeUtils'
 import './WeekSummary.css'
 
-export default function WeekSummary({ totalMinutes, percent, isExact, remainingMinutes }) {
+export default function WeekSummary({ totalMinutes, percent, isExact, remainingMinutes, overMinutes }) {
   const colorClass = isExact ? 'exact' : 'off'
 
   return (
@@ -10,9 +10,14 @@ export default function WeekSummary({ totalMinutes, percent, isExact, remainingM
       <span className="ws-time">{minutesToHHMM(totalMinutes)} / 40h</span>
       <span className={`ws-pct ${colorClass}`}>{percent}%</span>
       <ProgressBar percent={percent} isExact={isExact} />
-      {!isExact && (
+      {!isExact && remainingMinutes > 0 && (
         <span className="ws-remaining">
-          {minutesToHHMM(remainingMinutes)} still to allocate
+          {minutesToHHMM(remainingMinutes)} still needed
+        </span>
+      )}
+      {overMinutes > 0 && (
+        <span className="ws-remaining">
+          {minutesToHHMM(overMinutes)} over
         </span>
       )}
       {isExact && (

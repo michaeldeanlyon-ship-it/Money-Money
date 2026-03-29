@@ -21,7 +21,7 @@ export default function MonthGrid({ weeks, entries }) {
       {/* Week rows */}
       {weeks.map((days, wi) => {
         const weekDates = days.map(d => d.date)
-        const { totalMinutes, percent, isExact } = computeWeekSummary(weekDates, entries)
+        const { totalMinutes, percent, isExact, remainingMinutes, overMinutes } = computeWeekSummary(weekDates, entries)
         const { year, week } = getISOWeek(days[0].date)
 
         return (
@@ -29,12 +29,12 @@ export default function MonthGrid({ weeks, entries }) {
             {/* Week number */}
             <div className="mg-wk-cell" onClick={() => navigate(`/week/${year}/${week}`)}>
               <span className="wk-label">W{week}</span>
-              <span
-                className="wk-dot"
-                style={{ background: isExact ? 'var(--color-success)' : totalMinutes > 0 ? 'var(--color-danger)' : 'var(--color-border)' }}
-              />
-              {totalMinutes > 0 && (
-                <span className={`wk-pct ${isExact ? 'exact' : 'off'}`}>{percent}%</span>
+              {isExact && <span className="wk-status wk-exact">✓</span>}
+              {!isExact && overMinutes > 0 && (
+                <span className="wk-status wk-over">{minutesToHHMM(overMinutes)} over</span>
+              )}
+              {!isExact && remainingMinutes > 0 && totalMinutes > 0 && (
+                <span className="wk-status wk-needed">{minutesToHHMM(remainingMinutes)} needed</span>
               )}
             </div>
 

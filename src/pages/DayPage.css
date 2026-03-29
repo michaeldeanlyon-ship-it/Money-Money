@@ -73,6 +73,10 @@
   color: var(--color-success);
   border-color: var(--color-success);
 }
+.day-week-avail.over {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
 .dwa-icon { font-size: 0.9rem; }
 
 .day-entries-section {
