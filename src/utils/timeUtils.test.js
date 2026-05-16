@@ -4,6 +4,7 @@ import {
   WEEK_TARGET_MINUTES,
   WEEK_REDUCTION_START_DATE,
   computeWeekSummary,
+  formatEntryDuration,
 } from './timeUtils'
 
 describe('scaleInputHoursForDate', () => {
@@ -46,6 +47,40 @@ describe('WEEK_REDUCTION_START_DATE', () => {
 describe('WEEK_TARGET_MINUTES', () => {
   it('is 2328 (38.8h × 60)', () => {
     expect(WEEK_TARGET_MINUTES).toBe(2328)
+  })
+})
+
+describe('formatEntryDuration', () => {
+  it('shows "input → adjusted" for entries on/after cutoff', () => {
+    // 4h input → 233 min stored; reverse-scaled back to 4h for display
+    expect(formatEntryDuration(233, '2026-04-01')).toBe('4h → 3h 53m')
+  })
+
+  it('handles 8h input → 466 min on a post-cutoff date', () => {
+    expect(formatEntryDuration(466, '2026-04-15')).toBe('8h → 7h 46m')
+  })
+
+  it('handles 1.5h input → 87 min on a post-cutoff date', () => {
+    expect(formatEntryDuration(87, '2026-05-01')).toBe('1.5h → 1h 27m')
+  })
+
+  it('shows only the stored value for pre-cutoff entries', () => {
+    // 240 min = 4h, entered before the reduction kicked in
+    expect(formatEntryDuration(240, '2026-03-31')).toBe('4h')
+  })
+
+  it('shows only the stored value for 2025 entries', () => {
+    expect(formatEntryDuration(480, '2025-12-15')).toBe('8h')
+  })
+
+  it('returns "0m" for zero/empty minutes regardless of date', () => {
+    expect(formatEntryDuration(0, '2026-04-01')).toBe('0m')
+    expect(formatEntryDuration(0, '2025-12-15')).toBe('0m')
+  })
+
+  it('rounds the reverse-scaled input to a clean quarter hour', () => {
+    // 0.25h input → 15 min; reverse should round to 0.25
+    expect(formatEntryDuration(15, '2026-04-10')).toBe('0.25h → 15m')
   })
 })
 

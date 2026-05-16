@@ -20,6 +20,14 @@ export function scaleInputHoursForDate(rawHours, dateStr) {
   return rawHours * INPUT_SCALE
 }
 
+export function formatEntryDuration(minutes, dateStr) {
+  const adjusted = minutesToHHMM(minutes)
+  if (!minutes || minutes <= 0) return adjusted
+  if (dateStr < WEEK_REDUCTION_START_DATE) return adjusted
+  const rawHours = Math.round((minutes / 60 / INPUT_SCALE) * 4) / 4
+  return `${rawHours}h → ${adjusted}`
+}
+
 export function minutesToHHMM(minutes) {
   if (!minutes || minutes <= 0) return '0m'
   const h = Math.floor(minutes / 60)

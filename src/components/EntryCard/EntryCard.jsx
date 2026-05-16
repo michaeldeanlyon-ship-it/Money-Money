@@ -1,4 +1,4 @@
-import { minutesToHHMM } from '../../utils/timeUtils'
+import { formatEntryDuration } from '../../utils/timeUtils'
 import './EntryCard.css'
 
 const LABEL_META = {
@@ -35,7 +35,7 @@ export default function EntryCard({ entry, onEdit, onDelete }) {
         {badge.text && (
           <span className={`ec-badge ${badge.cls}`}>{badge.text}</span>
         )}
-        <span className="ec-time">{minutesToHHMM(entry.minutes)}</span>
+        <span className="ec-time">{formatEntryDuration(entry.minutes, entry.date)}</span>
       </div>
     </div>
   )
