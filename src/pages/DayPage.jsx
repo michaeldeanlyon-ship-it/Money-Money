@@ -92,7 +92,7 @@ export default function DayPage() {
                 <span className="dwa-icon">&#9719;</span>
                 <span>
                   <strong>{minutesToHHMM(weekRemaining)}</strong> still needed this week
-                  ({weekSummary.percent}% of 40h logged)
+                  ({weekSummary.percent}% of 38.8h logged)
                 </span>
               </div>
             )}
@@ -101,13 +101,13 @@ export default function DayPage() {
                 <span className="dwa-icon">&#9888;</span>
                 <span>
                   <strong>{minutesToHHMM(weekOver)}</strong> over this week
-                  ({weekSummary.percent}% of 40h logged)
+                  ({weekSummary.percent}% of 38.8h logged)
                 </span>
               </div>
             )}
             {weekSummary.isExact && (
               <div className="day-week-avail exact">
-                <span>&#10003; Week is on target — 40h logged</span>
+                <span>&#10003; Week is on target — 38.8h logged</span>
               </div>
             )}
 

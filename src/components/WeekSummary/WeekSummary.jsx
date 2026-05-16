@@ -7,7 +7,7 @@ export default function WeekSummary({ totalMinutes, percent, isExact, remainingM
 
   return (
     <div className="week-summary">
-      <span className="ws-time">{minutesToHHMM(totalMinutes)} / 40h</span>
+      <span className="ws-time">{minutesToHHMM(totalMinutes)} / 38.8h</span>
       <span className={`ws-pct ${colorClass}`}>{percent}%</span>
       <ProgressBar percent={percent} isExact={isExact} />
       {!isExact && remainingMinutes > 0 && (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { minutesToHHMM } from '../../utils/timeUtils'
+import { minutesToHHMM, scaleInputHoursForDate } from '../../utils/timeUtils'
 import { formatDayLabel } from '../../utils/dateUtils'
 import './AddEntryModal.css'
 
@@ -43,7 +43,9 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const mins = Math.round(parseFloat(hours) * 60)
+    const raw = parseFloat(hours)
+    const scaled = isEdit ? raw : scaleInputHoursForDate(raw, date)
+    const mins = Math.round(scaled * 60)
     if (!mins || mins <= 0) return
 
     setSaving(true)
