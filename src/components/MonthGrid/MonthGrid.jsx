@@ -21,7 +21,7 @@ export default function MonthGrid({ weeks, entries }) {
       {/* Week rows */}
       {weeks.map((days, wi) => {
         const weekDates = days.map(d => d.date)
-        const { totalMinutes, percent, isExact, remainingMinutes, overMinutes } = computeWeekSummary(weekDates, entries)
+        const { totalMinutes, isExact, remainingPercent, overPercent } = computeWeekSummary(weekDates, entries)
         const { year, week } = getISOWeek(days[0].date)
 
         return (
@@ -30,22 +30,21 @@ export default function MonthGrid({ weeks, entries }) {
             <div className="mg-wk-cell" onClick={() => navigate(`/week/${year}/${week}`)}>
               <span className="wk-label">W{week}</span>
               {isExact && <span className="wk-status wk-exact">✓</span>}
-              {!isExact && overMinutes > 0 && (
-                <span className="wk-status wk-over">{minutesToHHMM(overMinutes)} over</span>
+              {!isExact && overPercent > 0 && (
+                <span className="wk-status wk-over">{overPercent}% over</span>
               )}
-              {!isExact && remainingMinutes > 0 && totalMinutes > 0 && (
-                <span className="wk-status wk-needed">{minutesToHHMM(remainingMinutes)} needed</span>
+              {!isExact && remainingPercent > 0 && totalMinutes > 0 && (
+                <span className="wk-status wk-needed">{remainingPercent}% needed</span>
               )}
             </div>
 
             {/* Day cells */}
             {days.map(({ date, isCurrentMonth }) => {
               const dayEntries = entries.filter(e => e.date === date)
-              const childcare  = dayEntries.filter(e => e.type === 'paid_time' && e.paid_time_category === 'childcare').reduce((s, e) => s + e.minutes, 0)
-              const employment = dayEntries.filter(e => e.type === 'paid_time' && e.paid_time_category === 'employment').reduce((s, e) => s + e.minutes, 0)
+              const childcare  = dayEntries.filter(e => e.type === 'childcare').reduce((s, e) => s + e.minutes, 0)
               const frilans    = dayEntries.filter(e => e.type === 'job' && e.job_label === 'Frilans').reduce((s, e) => s + e.minutes, 0)
               const invoicery  = dayEntries.filter(e => e.type === 'job' && e.job_label === 'Invoicery').reduce((s, e) => s + e.minutes, 0)
-              const hasData    = (childcare + employment + frilans + invoicery) > 0
+              const hasData    = (childcare + frilans + invoicery) > 0
 
               return (
                 <div
@@ -58,10 +57,9 @@ export default function MonthGrid({ weeks, entries }) {
                   </span>
                   {hasData && (
                     <div className="mg-day-pills">
-                      {childcare  > 0 && <span className="mg-pill mg-pill-childcare">{minutesToHHMM(childcare)}</span>}
-                      {employment > 0 && <span className="mg-pill mg-pill-employment">{minutesToHHMM(employment)}</span>}
-                      {frilans    > 0 && <span className="mg-pill mg-pill-frilans">{minutesToHHMM(frilans)}</span>}
-                      {invoicery  > 0 && <span className="mg-pill mg-pill-invoicery">{minutesToHHMM(invoicery)}</span>}
+                      {childcare > 0 && <span className="mg-pill mg-pill-childcare">{minutesToHHMM(childcare)}</span>}
+                      {frilans   > 0 && <span className="mg-pill mg-pill-frilans">{minutesToHHMM(frilans)}</span>}
+                      {invoicery > 0 && <span className="mg-pill mg-pill-invoicery">{minutesToHHMM(invoicery)}</span>}
                     </div>
                   )}
                 </div>

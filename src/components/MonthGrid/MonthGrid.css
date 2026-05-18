@@ -115,7 +115,6 @@
   text-overflow: ellipsis;
 }
 
-.mg-pill-childcare  { background: rgba(196,138,90,0.18);  color: var(--color-childcare); }
-.mg-pill-employment { background: rgba(90,170,114,0.18);  color: var(--color-employment); }
-.mg-pill-frilans    { background: rgba(90,143,196,0.18);  color: var(--color-frilans); }
-.mg-pill-invoicery  { background: rgba(155,109,181,0.18); color: var(--color-invoicery); }
+.mg-pill-childcare { background: rgba(196,138,90,0.18);  color: var(--color-childcare); }
+.mg-pill-frilans   { background: rgba(90,143,196,0.18);  color: var(--color-frilans); }
+.mg-pill-invoicery { background: rgba(155,109,181,0.18); color: var(--color-invoicery); }

@@ -1,21 +1,32 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { minutesToHHMM, scaleInputHoursForDate } from '../../utils/timeUtils'
+import {
+  minutesToHHMM,
+  PERCENT_OPTIONS,
+  percentToMinutes,
+  percentToDecimalHours,
+  minutesToNearestPercent,
+} from '../../utils/timeUtils'
 import { formatDayLabel } from '../../utils/dateUtils'
 import './AddEntryModal.css'
+
+function initialType(initialEntry, preselectedJob) {
+  if (initialEntry?.type === 'childcare') return 'childcare'
+  if (initialEntry?.type === 'job') return 'job'
+  if (preselectedJob) return 'job'
+  return 'job'
+}
 
 export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, initialEntry, preselectedJob }) {
   const isEdit = !!initialEntry
 
-  const [type, setType] = useState(initialEntry?.type || (preselectedJob ? 'job' : 'job'))
+  const [type, setType] = useState(initialType(initialEntry, preselectedJob))
   const [selectedJobId, setSelectedJobId] = useState(
     initialEntry?.job_id || preselectedJob?.id || (jobs[0]?.id || '')
   )
-  const [hours, setHours] = useState(
-    initialEntry?.minutes ? (initialEntry.minutes / 60).toString() : ''
+  const [percent, setPercent] = useState(
+    initialEntry?.minutes ? minutesToNearestPercent(initialEntry.minutes) : 100
   )
-  const [paidCategory, setPaidCategory] = useState(initialEntry?.paid_time_category || 'employment')
-  const [paidName, setPaidName] = useState(initialEntry?.paid_time_name || '')
   const [jobTimeSpent, setJobTimeSpent] = useState(null)
   const [saving, setSaving] = useState(false)
 
@@ -43,9 +54,7 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const raw = parseFloat(hours)
-    const scaled = isEdit ? raw : scaleInputHoursForDate(raw, date)
-    const mins = Math.round(scaled * 60)
+    const mins = percentToMinutes(percent)
     if (!mins || mins <= 0) return
 
     setSaving(true)
@@ -54,12 +63,10 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
       const entry = {
         date,
         type,
-        jobId: type === 'job' ? selectedJobId : null,
-        jobName: type === 'job' ? (job?.name || null) : null,
-        jobLabel: type === 'job' ? (job?.label || null) : null,
-        paidTimeCategory: type === 'paid_time' ? paidCategory : null,
-        paidTimeName: type === 'paid_time' ? (paidName || null) : null,
-        minutes: mins,
+        jobId:     type === 'job' ? selectedJobId : null,
+        jobName:   type === 'job' ? (job?.name || null) : null,
+        jobLabel:  type === 'job' ? (job?.label || null) : null,
+        minutes:   mins,
       }
       if (isEdit) {
         await onUpdate(initialEntry.id, entry)
@@ -91,8 +98,8 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
               <button type="button" className={`type-tab ${type === 'job' ? 'active' : ''}`} onClick={() => setType('job')}>
                 Job
               </button>
-              <button type="button" className={`type-tab ${type === 'paid_time' ? 'active' : ''}`} onClick={() => setType('paid_time')}>
-                Paid Time
+              <button type="button" className={`type-tab ${type === 'childcare' ? 'active' : ''}`} onClick={() => setType('childcare')}>
+                Child Care
               </button>
             </div>
 
@@ -132,46 +139,21 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
               </>
             )}
 
-            {type === 'paid_time' && (
-              <>
-                <div className="form-field">
-                  <label>Category</label>
-                  <div className="cat-tabs">
-                    <button type="button" className={`cat-tab ${paidCategory === 'employment' ? 'employment' : ''}`} onClick={() => setPaidCategory('employment')}>
-                      Employment
-                    </button>
-                    <button type="button" className={`cat-tab ${paidCategory === 'childcare' ? 'childcare' : ''}`} onClick={() => setPaidCategory('childcare')}>
-                      Childcare
-                    </button>
-                  </div>
-                </div>
-                <div className="form-field">
-                  <label>Description (optional)</label>
-                  <input
-                    type="text"
-                    value={paidName}
-                    onChange={e => setPaidName(e.target.value)}
-                    placeholder="e.g. School run, Regular work..."
-                  />
-                </div>
-              </>
-            )}
-
             <div className="form-field">
-              <label>Hours</label>
-              <input
-                type="number"
-                value={hours}
-                onChange={e => setHours(e.target.value)}
-                placeholder="e.g. 1.5 (= 1h 30m)"
-                min="0"
-                step="any"
-                required
-                autoFocus={!preselectedJob}
-              />
-              {hours && parseFloat(hours) > 0 && (
-                <span className="minutes-hint">{minutesToHHMM(Math.round(parseFloat(hours) * 60))}</span>
-              )}
+              <label>Time</label>
+              <div className="pct-row">
+                {PERCENT_OPTIONS.map(p => (
+                  <button
+                    key={p}
+                    type="button"
+                    className={`pct-btn ${percent === p ? 'active' : ''}`}
+                    onClick={() => setPercent(p)}
+                  >
+                    {p}%
+                  </button>
+                ))}
+              </div>
+              <div className="pct-preview">{percentToDecimalHours(percent).toFixed(2)}h</div>
             </div>
           </div>
 

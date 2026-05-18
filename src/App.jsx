@@ -6,6 +6,7 @@ import WeekPage from './pages/WeekPage'
 import MonthPage from './pages/MonthPage'
 import DayPage from './pages/DayPage'
 import JobsPage from './pages/JobsPage'
+import { useMigration } from './hooks/useMigration'
 import { today, getISOWeek } from './utils/dateUtils'
 
 function DefaultRedirect() {
@@ -15,7 +16,9 @@ function DefaultRedirect() {
 }
 
 function AppRoutes() {
-  const { auth } = useAppContext()
+  const { auth, jobsData } = useAppContext()
+  const ready = !!auth.user && !jobsData.loading
+  useMigration(jobsData.jobs, ready)
 
   // Still resolving session
   if (auth.user === undefined) return null

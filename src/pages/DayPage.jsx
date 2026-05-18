@@ -27,7 +27,7 @@ export default function DayPage() {
 
   const daySummary = computeDaySummary(date, entries)
   const weekSummary = computeWeekSummary(weekDays, weekEntries)
-  const { remainingMinutes: weekRemaining, overMinutes: weekOver } = weekSummary
+  const { remainingPercent: weekRemainingPct, overPercent: weekOverPct } = weekSummary
 
   function goToPrev() {
     navigate(`/day/${addDays(date, -1)}`)
@@ -73,11 +73,7 @@ export default function DayPage() {
                 <div className="ds-card-value">{minutesToHHMM(daySummary.workMinutes)}</div>
               </div>
               <div className="ds-card">
-                <div className="ds-card-label">Employment</div>
-                <div className="ds-card-value">{minutesToHHMM(daySummary.employmentMinutes)}</div>
-              </div>
-              <div className="ds-card">
-                <div className="ds-card-label">Childcare</div>
+                <div className="ds-card-label">Child Care</div>
                 <div className="ds-card-value">{minutesToHHMM(daySummary.childcareMinutes)}</div>
               </div>
               <div className="ds-card">
@@ -87,27 +83,27 @@ export default function DayPage() {
             </div>
 
             {/* Week availability */}
-            {!weekSummary.isExact && weekRemaining > 0 && (
+            {!weekSummary.isExact && weekRemainingPct > 0 && (
               <div className="day-week-avail">
                 <span className="dwa-icon">&#9719;</span>
                 <span>
-                  <strong>{minutesToHHMM(weekRemaining)}</strong> still needed this week
-                  ({weekSummary.percent}% of 38.8h logged)
+                  <strong>{weekRemainingPct}%</strong> still needed this week
+                  ({weekSummary.percent}% logged)
                 </span>
               </div>
             )}
-            {!weekSummary.isExact && weekOver > 0 && (
+            {!weekSummary.isExact && weekOverPct > 0 && (
               <div className="day-week-avail over">
                 <span className="dwa-icon">&#9888;</span>
                 <span>
-                  <strong>{minutesToHHMM(weekOver)}</strong> over this week
-                  ({weekSummary.percent}% of 38.8h logged)
+                  <strong>{weekOverPct}%</strong> over this week
+                  ({weekSummary.percent}% logged)
                 </span>
               </div>
             )}
             {weekSummary.isExact && (
               <div className="day-week-avail exact">
-                <span>&#10003; Week is on target — 38.8h logged</span>
+                <span>&#10003; Week is on target — 100% logged</span>
               </div>
             )}
 

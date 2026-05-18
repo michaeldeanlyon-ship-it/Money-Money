@@ -1,31 +1,41 @@
-// Work-week reduction: contracted week dropped from 40h → 38.8h on 2026-04-01.
-// The user enters hours using the old 8h-day mental model (e.g. "4" = half a
-// day). For entries dated on/after the cutoff, scale by 38.8/40 = 0.97 so the
-// stored value matches the reduced week. Pre-cutoff entries save raw.
-//
-//   stored_hours = raw_hours × (WEEK_TARGET_HOURS / RAW_WEEK_HOURS)
-//                = raw_hours × (38.8 / 40)
-//                = raw_hours × 0.97
-//
-// Examples:  4 → 3.88,  8 → 7.76,  1.5 → 1.455,  40 → 38.8
-export const RAW_WEEK_HOURS = 40
+// Time entries are quantised to four daily percentages: 25, 50, 75, 100.
+// A 100% day = 7.76h = 38.8h / 5 working days. Stored minutes are the rounded
+// equivalents (see BUCKET_MINUTES). Five 100% days sum to 2330 min, two minutes
+// over the 2328 weekly target — percentage is the source of truth.
 export const WEEK_TARGET_HOURS = 38.8
-export const WEEK_TARGET_MINUTES = Math.round(WEEK_TARGET_HOURS * 60)
-export const WEEK_REDUCTION_START_DATE = '2026-04-01'
+export const DAY_TARGET_HOURS = WEEK_TARGET_HOURS / 5
 
-const INPUT_SCALE = WEEK_TARGET_HOURS / RAW_WEEK_HOURS
+export const PERCENT_OPTIONS = [25, 50, 75, 100]
+export const BUCKET_MINUTES = PERCENT_OPTIONS.reduce((acc, pct) => {
+  acc[pct] = Math.round((DAY_TARGET_HOURS * pct * 60) / 100)
+  return acc
+}, {})
 
-export function scaleInputHoursForDate(rawHours, dateStr) {
-  if (dateStr < WEEK_REDUCTION_START_DATE) return rawHours
-  return rawHours * INPUT_SCALE
+// Five 100% days = full week. Using this (rather than 38.8h × 60) keeps
+// week% consistent with the day-percentage buckets.
+export const WEEK_TARGET_MINUTES = BUCKET_MINUTES[100] * 5
+
+export function percentToMinutes(percent) {
+  return BUCKET_MINUTES[percent]
 }
 
-export function formatEntryDuration(minutes, dateStr) {
-  const adjusted = minutesToHHMM(minutes)
-  if (!minutes || minutes <= 0) return adjusted
-  if (dateStr < WEEK_REDUCTION_START_DATE) return adjusted
-  const rawHours = Math.round((minutes / 60 / INPUT_SCALE) * 4) / 4
-  return `${rawHours}h → ${adjusted}`
+export function percentToDecimalHours(percent) {
+  return (percent * DAY_TARGET_HOURS) / 100
+}
+
+export function minutesToNearestPercent(minutes) {
+  const safe = Math.max(0, minutes || 0)
+  return PERCENT_OPTIONS.reduce((closest, pct) => {
+    const closestDiff = Math.abs(BUCKET_MINUTES[closest] - safe)
+    const pctDiff = Math.abs(BUCKET_MINUTES[pct] - safe)
+    return pctDiff < closestDiff ? pct : closest
+  }, PERCENT_OPTIONS[0])
+}
+
+export function formatEntryDuration(minutes) {
+  if (!minutes || minutes <= 0) return '0m'
+  const pct = minutesToNearestPercent(minutes)
+  return `${pct}% · ${minutesToHHMM(minutes)}`
 }
 
 export function minutesToHHMM(minutes) {
@@ -52,20 +62,19 @@ export function computeWeekSummary(weekDates, entries) {
     isExact: totalMinutes === WEEK_TARGET_MINUTES,
     remainingMinutes: isOver ? 0 : WEEK_TARGET_MINUTES - totalMinutes,
     overMinutes: isOver ? totalMinutes - WEEK_TARGET_MINUTES : 0,
+    remainingPercent: isOver ? 0 : Math.max(0, 100 - percent),
+    overPercent: isOver ? Math.max(0, percent - 100) : 0,
   }
 }
 
 export function computeDaySummary(dateStr, entries) {
   const dayEntries = entries.filter(e => e.date === dateStr)
   const childcareMinutes = dayEntries
-    .filter(e => e.type === 'paid_time' && e.paid_time_category === 'childcare')
-    .reduce((sum, e) => sum + e.minutes, 0)
-  const employmentMinutes = dayEntries
-    .filter(e => e.type === 'paid_time' && e.paid_time_category === 'employment')
+    .filter(e => e.type === 'childcare')
     .reduce((sum, e) => sum + e.minutes, 0)
   const workMinutes = dayEntries
     .filter(e => e.type === 'job')
     .reduce((sum, e) => sum + e.minutes, 0)
   const totalMinutes = dayEntries.reduce((sum, e) => sum + e.minutes, 0)
-  return { childcareMinutes, employmentMinutes, workMinutes, totalMinutes }
+  return { childcareMinutes, workMinutes, totalMinutes }
 }

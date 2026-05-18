@@ -1,111 +1,180 @@
 import { describe, it, expect } from 'vitest'
 import {
-  scaleInputHoursForDate,
+  PERCENT_OPTIONS,
+  BUCKET_MINUTES,
+  DAY_TARGET_HOURS,
+  WEEK_TARGET_HOURS,
   WEEK_TARGET_MINUTES,
-  WEEK_REDUCTION_START_DATE,
-  computeWeekSummary,
+  percentToMinutes,
+  percentToDecimalHours,
+  minutesToNearestPercent,
   formatEntryDuration,
+  minutesToHHMM,
+  computeWeekSummary,
+  computeDaySummary,
 } from './timeUtils'
 
-describe('scaleInputHoursForDate', () => {
-  it('scales 4 → 3.88 on the cutoff date (2026-04-01)', () => {
-    expect(scaleInputHoursForDate(4, '2026-04-01')).toBeCloseTo(3.88, 5)
+describe('constants', () => {
+  it('WEEK_TARGET_HOURS is 38.8', () => {
+    expect(WEEK_TARGET_HOURS).toBe(38.8)
   })
-
-  it('scales 4 → 3.88 after the cutoff', () => {
-    expect(scaleInputHoursForDate(4, '2026-05-16')).toBeCloseTo(3.88, 5)
+  it('WEEK_TARGET_MINUTES is 2330 (5 × BUCKET_MINUTES[100])', () => {
+    expect(WEEK_TARGET_MINUTES).toBe(2330)
   })
-
-  it('scales 8 → 7.76 after the cutoff', () => {
-    expect(scaleInputHoursForDate(8, '2026-04-15')).toBeCloseTo(7.76, 5)
+  it('DAY_TARGET_HOURS is 7.76', () => {
+    expect(DAY_TARGET_HOURS).toBeCloseTo(7.76, 5)
   })
-
-  it('does NOT scale before the cutoff (2026-03-31 → raw 4)', () => {
-    expect(scaleInputHoursForDate(4, '2026-03-31')).toBe(4)
+  it('PERCENT_OPTIONS is [25, 50, 75, 100]', () => {
+    expect(PERCENT_OPTIONS).toEqual([25, 50, 75, 100])
   })
-
-  it('does NOT scale a 2025 date', () => {
-    expect(scaleInputHoursForDate(8, '2025-12-15')).toBe(8)
-  })
-
-  it('scales 0 → 0 regardless of date', () => {
-    expect(scaleInputHoursForDate(0, '2026-04-01')).toBe(0)
-    expect(scaleInputHoursForDate(0, '2026-03-15')).toBe(0)
-  })
-
-  it('scales a full 40 → 38.8 after cutoff (the whole point)', () => {
-    expect(scaleInputHoursForDate(40, '2026-04-01')).toBeCloseTo(38.8, 5)
+  it('BUCKET_MINUTES maps 25→116, 50→233, 75→349, 100→466', () => {
+    expect(BUCKET_MINUTES).toEqual({ 25: 116, 50: 233, 75: 349, 100: 466 })
   })
 })
 
-describe('WEEK_REDUCTION_START_DATE', () => {
-  it('is 2026-04-01', () => {
-    expect(WEEK_REDUCTION_START_DATE).toBe('2026-04-01')
-  })
+describe('percentToMinutes', () => {
+  it('25 → 116', () => expect(percentToMinutes(25)).toBe(116))
+  it('50 → 233', () => expect(percentToMinutes(50)).toBe(233))
+  it('75 → 349', () => expect(percentToMinutes(75)).toBe(349))
+  it('100 → 466', () => expect(percentToMinutes(100)).toBe(466))
 })
 
-describe('WEEK_TARGET_MINUTES', () => {
-  it('is 2328 (38.8h × 60)', () => {
-    expect(WEEK_TARGET_MINUTES).toBe(2328)
+describe('percentToDecimalHours', () => {
+  it('100 → 7.76', () => expect(percentToDecimalHours(100)).toBeCloseTo(7.76, 5))
+  it('75 → 5.82', () => expect(percentToDecimalHours(75)).toBeCloseTo(5.82, 5))
+  it('50 → 3.88', () => expect(percentToDecimalHours(50)).toBeCloseTo(3.88, 5))
+  it('25 → 1.94', () => expect(percentToDecimalHours(25)).toBeCloseTo(1.94, 5))
+})
+
+describe('minutesToNearestPercent', () => {
+  it('exact bucket → that bucket', () => {
+    expect(minutesToNearestPercent(116)).toBe(25)
+    expect(minutesToNearestPercent(233)).toBe(50)
+    expect(minutesToNearestPercent(349)).toBe(75)
+    expect(minutesToNearestPercent(466)).toBe(100)
+  })
+  it('legacy 240 (old 4h) → 50%', () => {
+    expect(minutesToNearestPercent(240)).toBe(50)
+  })
+  it('legacy 480 (old 8h) → 100%', () => {
+    expect(minutesToNearestPercent(480)).toBe(100)
+  })
+  it('60 → 25%', () => {
+    expect(minutesToNearestPercent(60)).toBe(25)
+  })
+  it('400 → 75%', () => {
+    expect(minutesToNearestPercent(400)).toBe(75)
+  })
+  it('0 → 25% (clamp to lowest bucket)', () => {
+    expect(minutesToNearestPercent(0)).toBe(25)
+  })
+  it('huge value → 100%', () => {
+    expect(minutesToNearestPercent(99999)).toBe(100)
   })
 })
 
 describe('formatEntryDuration', () => {
-  it('shows "input → adjusted" for entries on/after cutoff', () => {
-    // 4h input → 233 min stored; reverse-scaled back to 4h for display
-    expect(formatEntryDuration(233, '2026-04-01')).toBe('4h → 3h 53m')
+  it('466 → "100% · 7h 46m"', () => {
+    expect(formatEntryDuration(466)).toBe('100% · 7h 46m')
   })
+  it('349 → "75% · 5h 49m"', () => {
+    expect(formatEntryDuration(349)).toBe('75% · 5h 49m')
+  })
+  it('233 → "50% · 3h 53m"', () => {
+    expect(formatEntryDuration(233)).toBe('50% · 3h 53m')
+  })
+  it('116 → "25% · 1h 56m"', () => {
+    expect(formatEntryDuration(116)).toBe('25% · 1h 56m')
+  })
+  it('0 → "0m"', () => {
+    expect(formatEntryDuration(0)).toBe('0m')
+  })
+  it('null → "0m"', () => {
+    expect(formatEntryDuration(null)).toBe('0m')
+  })
+})
 
-  it('handles 8h input → 466 min on a post-cutoff date', () => {
-    expect(formatEntryDuration(466, '2026-04-15')).toBe('8h → 7h 46m')
-  })
-
-  it('handles 1.5h input → 87 min on a post-cutoff date', () => {
-    expect(formatEntryDuration(87, '2026-05-01')).toBe('1.5h → 1h 27m')
-  })
-
-  it('shows only the stored value for pre-cutoff entries', () => {
-    // 240 min = 4h, entered before the reduction kicked in
-    expect(formatEntryDuration(240, '2026-03-31')).toBe('4h')
-  })
-
-  it('shows only the stored value for 2025 entries', () => {
-    expect(formatEntryDuration(480, '2025-12-15')).toBe('8h')
-  })
-
-  it('returns "0m" for zero/empty minutes regardless of date', () => {
-    expect(formatEntryDuration(0, '2026-04-01')).toBe('0m')
-    expect(formatEntryDuration(0, '2025-12-15')).toBe('0m')
-  })
-
-  it('rounds the reverse-scaled input to a clean quarter hour', () => {
-    // 0.25h input → 15 min; reverse should round to 0.25
-    expect(formatEntryDuration(15, '2026-04-10')).toBe('0.25h → 15m')
-  })
+describe('minutesToHHMM', () => {
+  it('466 → "7h 46m"', () => expect(minutesToHHMM(466)).toBe('7h 46m'))
+  it('60 → "1h"', () => expect(minutesToHHMM(60)).toBe('1h'))
+  it('45 → "45m"', () => expect(minutesToHHMM(45)).toBe('45m'))
+  it('0 → "0m"', () => expect(minutesToHHMM(0)).toBe('0m'))
 })
 
 describe('computeWeekSummary', () => {
   const date = '2026-05-11'
 
-  it('is exact at 2328 minutes (38.8h)', () => {
-    const result = computeWeekSummary([date], [{ date, minutes: 2328 }])
+  it('is exact at 5×100% days (2330 minutes)', () => {
+    const result = computeWeekSummary(
+      ['d1', 'd2', 'd3', 'd4', 'd5'],
+      [
+        { date: 'd1', minutes: 466 },
+        { date: 'd2', minutes: 466 },
+        { date: 'd3', minutes: 466 },
+        { date: 'd4', minutes: 466 },
+        { date: 'd5', minutes: 466 },
+      ]
+    )
     expect(result.isExact).toBe(true)
     expect(result.percent).toBe(100)
     expect(result.remainingMinutes).toBe(0)
     expect(result.overMinutes).toBe(0)
+    expect(result.remainingPercent).toBe(0)
+    expect(result.overPercent).toBe(0)
   })
 
-  it('is 50% at 1164 minutes (half of 2328)', () => {
-    const result = computeWeekSummary([date], [{ date, minutes: 1164 }])
+  it('is 50% at half target (1165 minutes)', () => {
+    const result = computeWeekSummary([date], [{ date, minutes: 1165 }])
     expect(result.percent).toBe(50)
     expect(result.isExact).toBe(false)
-    expect(result.remainingMinutes).toBe(1164)
+    expect(result.remainingPercent).toBe(50)
+    expect(result.overPercent).toBe(0)
   })
 
-  it('reports overMinutes when above target', () => {
-    const result = computeWeekSummary([date], [{ date, minutes: 2400 }])
+  it('reports overPercent when above target', () => {
+    const result = computeWeekSummary([date], [{ date, minutes: 2796 }]) // 6 × 466
     expect(result.isExact).toBe(false)
-    expect(result.overMinutes).toBe(72)
-    expect(result.remainingMinutes).toBe(0)
+    expect(result.percent).toBe(120)
+    expect(result.overPercent).toBe(20)
+    expect(result.remainingPercent).toBe(0)
+  })
+
+  it('one full 100% day → 20% of week', () => {
+    const result = computeWeekSummary([date], [{ date, minutes: 466 }])
+    expect(result.percent).toBe(20)
+    expect(result.remainingPercent).toBe(80)
+  })
+})
+
+describe('computeDaySummary', () => {
+  const date = '2026-05-11'
+
+  it('sums job and childcare separately', () => {
+    const entries = [
+      { date, type: 'job', minutes: 466 },
+      { date, type: 'childcare', minutes: 233 },
+      { date, type: 'job', minutes: 116 },
+    ]
+    const result = computeDaySummary(date, entries)
+    expect(result.workMinutes).toBe(582)
+    expect(result.childcareMinutes).toBe(233)
+    expect(result.totalMinutes).toBe(815)
+  })
+
+  it('ignores entries from other dates', () => {
+    const entries = [
+      { date, type: 'job', minutes: 466 },
+      { date: '2026-05-10', type: 'job', minutes: 233 },
+    ]
+    const result = computeDaySummary(date, entries)
+    expect(result.workMinutes).toBe(466)
+    expect(result.totalMinutes).toBe(466)
+  })
+
+  it('returns zeros for an empty day', () => {
+    const result = computeDaySummary(date, [])
+    expect(result.workMinutes).toBe(0)
+    expect(result.childcareMinutes).toBe(0)
+    expect(result.totalMinutes).toBe(0)
   })
 })

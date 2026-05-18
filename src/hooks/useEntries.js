@@ -29,8 +29,8 @@ export function useEntries(fromDate, toDate) {
         job_id: entry.jobId || null,
         job_name: entry.jobName || null,
         job_label: entry.jobLabel || null,
-        paid_time_category: entry.paidTimeCategory || null,
-        paid_time_name: entry.paidTimeName || null,
+        paid_time_category: null,
+        paid_time_name: null,
         minutes: entry.minutes,
       })
       .select()
@@ -49,8 +49,8 @@ export function useEntries(fromDate, toDate) {
         job_id: entry.jobId || null,
         job_name: entry.jobName || null,
         job_label: entry.jobLabel || null,
-        paid_time_category: entry.paidTimeCategory || null,
-        paid_time_name: entry.paidTimeName || null,
+        paid_time_category: null,
+        paid_time_name: null,
         minutes: entry.minutes,
       })
       .eq('id', id)

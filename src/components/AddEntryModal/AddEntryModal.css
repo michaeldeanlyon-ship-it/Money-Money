@@ -149,25 +149,36 @@
   margin-top: 0.15rem;
 }
 
-.cat-tabs {
+.pct-row {
   display: flex;
   gap: 0.5rem;
 }
 
-.cat-tab {
+.pct-btn {
   flex: 1;
-  padding: 0.4rem;
+  padding: 0.55rem 0.3rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface-raised);
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
   transition: all 0.15s;
 }
-.cat-tab.employment { background: var(--color-employment); border-color: var(--color-employment); color: white; }
-.cat-tab.childcare  { background: var(--color-childcare); border-color: var(--color-childcare); color: white; }
+.pct-btn:hover { color: var(--color-text); }
+.pct-btn.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+}
+
+.pct-preview {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
 
 .modal-footer {
   display: flex;
