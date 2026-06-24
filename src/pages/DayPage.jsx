@@ -4,6 +4,7 @@ import { useAppContext } from '../context/AppContext'
 import { useEntries } from '../hooks/useEntries'
 import { formatDayLabel, addDays, getISOWeek, today, getWeekDays } from '../utils/dateUtils'
 import { minutesToHHMM, computeDaySummary, computeWeekSummary } from '../utils/timeUtils'
+import { matchesFilter } from '../utils/categoryUtils'
 import EntryCard from '../components/EntryCard/EntryCard'
 import AddEntryModal from '../components/AddEntryModal/AddEntryModal'
 import JobsPanel from '../components/JobsPanel/JobsPanel'
@@ -12,7 +13,7 @@ import './DayPage.css'
 export default function DayPage() {
   const { date } = useParams()
   const navigate = useNavigate()
-  const { jobsData } = useAppContext()
+  const { jobsData, filter } = useAppContext()
   const { jobs } = jobsData
   const [modal, setModal] = useState(null)
   const [draggedJob, setDraggedJob] = useState(null)
@@ -26,6 +27,8 @@ export default function DayPage() {
   const { entries: weekEntries } = useEntries(weekDays[0], weekDays[6])
 
   const daySummary = computeDaySummary(date, entries)
+  // Summaries stay based on all entries; the filter only hides list rows.
+  const visibleEntries = entries.filter(e => matchesFilter(e, filter))
   const weekSummary = computeWeekSummary(weekDays, weekEntries)
   const { remainingPercent: weekRemainingPct, overPercent: weekOverPct } = weekSummary
 
@@ -114,12 +117,16 @@ export default function DayPage() {
                 <button className="day-add-btn" onClick={() => openAdd()}>+ Add entry</button>
               </div>
 
-              {entries.length === 0 && (
-                <p className="day-empty">No entries yet. Click "+ Add entry" to start.</p>
+              {visibleEntries.length === 0 && (
+                <p className="day-empty">
+                  {entries.length === 0
+                    ? 'No entries yet. Click "+ Add entry" to start.'
+                    : 'No entries match this filter.'}
+                </p>
               )}
 
               <div className="day-entries-list">
-                {entries.map(entry => (
+                {visibleEntries.map(entry => (
                   <EntryCard
                     key={entry.id}
                     entry={entry}

@@ -8,7 +8,7 @@ import './WeekPage.css'
 export default function WeekPage() {
   const { year, week } = useParams()
   const navigate = useNavigate()
-  const { jobsData } = useAppContext()
+  const { jobsData, filter } = useAppContext()
   const { jobs } = jobsData
 
   const y = parseInt(year)
@@ -53,6 +53,7 @@ export default function WeekPage() {
           weekDays={weekDays}
           entries={entries}
           jobs={jobs}
+          filter={filter}
           onAddEntry={addEntry}
           onUpdateEntry={updateEntry}
           onDeleteEntry={deleteEntry}

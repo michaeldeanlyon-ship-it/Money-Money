@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import ViewSwitcher from '../ViewSwitcher/ViewSwitcher'
+import CategoryFilter from '../CategoryFilter/CategoryFilter'
 import { useAppContext } from '../../context/AppContext'
 import './Layout.css'
 
@@ -18,6 +19,7 @@ export default function Layout({ children }) {
         </Link>
         <div className="nav-center">
           <ViewSwitcher />
+          <CategoryFilter />
         </div>
         <nav className="nav-right">
           <Link to="/jobs" className="nav-jobs-link">Jobs</Link>

@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
+import { useAppContext } from '../context/AppContext'
 import { useEntries } from '../hooks/useEntries'
 import { getMonthWeeks, prevMonth, nextMonth, formatMonthLabel } from '../utils/dateUtils'
 import MonthGrid from '../components/MonthGrid/MonthGrid'
@@ -7,6 +8,7 @@ import './MonthPage.css'
 export default function MonthPage() {
   const { year, month } = useParams()
   const navigate = useNavigate()
+  const { filter } = useAppContext()
 
   const y = parseInt(year)
   const m = parseInt(month)
@@ -48,7 +50,7 @@ export default function MonthPage() {
         <div className="page-loading">Loading…</div>
       ) : (
         <div className="month-page-body">
-          <MonthGrid weeks={weeks} entries={entries} />
+          <MonthGrid weeks={weeks} entries={entries} filter={filter} />
         </div>
       )}
     </div>

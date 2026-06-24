@@ -1,0 +1,45 @@
+.category-filter {
+  display: flex;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.cf-btn {
+  padding: 0.3rem 0.9rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: 1px solid var(--color-border);
+}
+
+.cf-btn:last-child {
+  border-right: none;
+}
+
+.cf-btn:hover {
+  color: var(--color-text);
+  background: var(--color-border);
+}
+
+.cf-btn.active {
+  background: var(--color-accent);
+  color: white;
+}
+
+.cf-btn.cf-frilans.active {
+  background: var(--color-frilans);
+}
+
+.cf-btn.cf-invoicery.active {
+  background: var(--color-invoicery);
+}
+
+.cf-btn.cf-childcare.active {
+  background: var(--color-childcare);
+}

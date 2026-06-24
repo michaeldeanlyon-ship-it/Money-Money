@@ -37,6 +37,8 @@
   flex: 1;
   display: flex;
   justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .nav-right {

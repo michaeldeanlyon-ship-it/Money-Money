@@ -6,7 +6,7 @@ import JobsPanel from '../JobsPanel/JobsPanel'
 import { computeWeekSummary } from '../../utils/timeUtils'
 import './WeekGrid.css'
 
-export default function WeekGrid({ weekDays, entries, jobs, onAddEntry, onUpdateEntry, onDeleteEntry }) {
+export default function WeekGrid({ weekDays, entries, jobs, filter = 'all', onAddEntry, onUpdateEntry, onDeleteEntry }) {
   const [modal, setModal] = useState(null) // { date, entry?, preselectedJob? }
   const [draggedJob, setDraggedJob] = useState(null)
   const [dropTargetDate, setDropTargetDate] = useState(null)
@@ -47,6 +47,7 @@ export default function WeekGrid({ weekDays, entries, jobs, onAddEntry, onUpdate
               key={date}
               date={date}
               entries={entries}
+              filter={filter}
               onAdd={d => openAdd(d)}
               onEdit={openEdit}
               onDelete={onDeleteEntry}

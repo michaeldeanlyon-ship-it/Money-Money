@@ -1,13 +1,16 @@
 import { useNavigate } from 'react-router-dom'
 import EntryCard from '../EntryCard/EntryCard'
 import { minutesToHHMM } from '../../utils/timeUtils'
+import { matchesFilter } from '../../utils/categoryUtils'
 import { shortDayName, dayOfMonth, isToday } from '../../utils/dateUtils'
 import './DayColumn.css'
 
-export default function DayColumn({ date, entries, onAdd, onEdit, onDelete, onDragOver, onDrop, isDropTarget }) {
+export default function DayColumn({ date, entries, filter = 'all', onAdd, onEdit, onDelete, onDragOver, onDrop, isDropTarget }) {
   const navigate = useNavigate()
   const dayEntries = entries.filter(e => e.date === date)
+  // Total stays based on all entries; the filter only hides cards.
   const total = dayEntries.reduce((sum, e) => sum + e.minutes, 0)
+  const visibleEntries = dayEntries.filter(e => matchesFilter(e, filter))
 
   function handleDragOver(e) {
     e.preventDefault()
@@ -38,10 +41,10 @@ export default function DayColumn({ date, entries, onAdd, onEdit, onDelete, onDr
       </div>
 
       <div className="day-entries">
-        {dayEntries.length === 0 && isDropTarget && (
+        {visibleEntries.length === 0 && isDropTarget && (
           <div className="drop-hint">Drop here</div>
         )}
-        {dayEntries.map(entry => (
+        {visibleEntries.map(entry => (
           <EntryCard
             key={entry.id}
             entry={entry}
