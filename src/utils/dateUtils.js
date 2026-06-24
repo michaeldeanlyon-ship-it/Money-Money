@@ -101,6 +101,41 @@ export function nextMonth(year, month) {
   return { year, month: month + 1 }
 }
 
+// ── View switching ──────────────────────────────────────────────
+
+// Map the current view + its params to the route for a target granularity,
+// keeping the user on the period they're already viewing instead of jumping
+// to today. `current` is one of:
+//   { view: 'day', date }           // 'YYYY-MM-DD'
+//   { view: 'week', year, week }    // ints
+//   { view: 'month', year, month }  // ints, month 1-12
+export function pathForViewSwitch(current, target) {
+  // Anchor date (YYYY-MM-DD) representing the first day of the current period.
+  let anchor
+  if (current.view === 'day') {
+    anchor = current.date
+  } else if (current.view === 'week') {
+    anchor = getWeekDays(current.year, current.week)[0] // Monday
+  } else {
+    anchor = `${current.year}-${String(current.month).padStart(2, '0')}-01`
+  }
+
+  if (target === 'day') {
+    return `/day/${anchor}`
+  }
+  if (target === 'week') {
+    const { year, week } = getISOWeek(anchor)
+    return `/week/${year}/${week}`
+  }
+  // target === 'month': from a week, use the ISO-owning (Thursday) month so a
+  // straddling week resolves to the month that owns its ISO week number.
+  const monthAnchor = current.view === 'week'
+    ? getWeekDays(current.year, current.week)[3] // Thursday
+    : anchor
+  const d = parseDate(monthAnchor)
+  return `/month/${d.getUTCFullYear()}/${d.getUTCMonth() + 1}`
+}
+
 // ── Labels ──────────────────────────────────────────────────────
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
