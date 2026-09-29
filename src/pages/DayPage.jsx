@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useAppContext } from '../context/AppContext'
 import { useEntries } from '../hooks/useEntries'
 import { formatDayLabel, addDays, getISOWeek, today, getWeekDays } from '../utils/dateUtils'
-import { minutesToHHMM, computeDaySummary, computeWeekSummary } from '../utils/timeUtils'
+import { minutesToHHMM, computeDaySummary, computeWeekSummary, percentOfDayTarget } from '../utils/timeUtils'
 import { matchesFilter } from '../utils/categoryUtils'
 import EntryCard from '../components/EntryCard/EntryCard'
 import AddEntryModal from '../components/AddEntryModal/AddEntryModal'
@@ -69,21 +69,73 @@ export default function DayPage() {
       ) : (
         <div className="day-page-body">
           <div className="day-page-main">
-            {/* Summary cards */}
+            {/* Summary cards — each shows h/m plus its % of the 7.76h day */}
             <div className="day-summary-grid">
               <div className="ds-card">
                 <div className="ds-card-label">Work done</div>
                 <div className="ds-card-value">{minutesToHHMM(daySummary.workMinutes)}</div>
+                <div className="ds-card-pct">{percentOfDayTarget(daySummary.workMinutes)}% of day</div>
               </div>
               <div className="ds-card">
                 <div className="ds-card-label">Child Care</div>
                 <div className="ds-card-value">{minutesToHHMM(daySummary.childcareMinutes)}</div>
+                <div className="ds-card-pct">{percentOfDayTarget(daySummary.childcareMinutes)}% of day</div>
+              </div>
+              <div className="ds-card">
+                <div className="ds-card-label">School</div>
+                <div className="ds-card-value">{minutesToHHMM(daySummary.schoolMinutes)}</div>
+                <div className="ds-card-pct">must be worked</div>
               </div>
               <div className="ds-card">
                 <div className="ds-card-label">Day total</div>
                 <div className="ds-card-value">{minutesToHHMM(daySummary.totalMinutes)}</div>
+                <div className="ds-card-pct">{percentOfDayTarget(daySummary.totalMinutes)}% of day</div>
               </div>
             </div>
+
+            {/* Required-work banner — on a school day the parent must work at
+                least as many minutes as the child is in school. School itself
+                does not credit the day. */}
+            {daySummary.schoolMinutes > 0 && (
+              daySummary.workNeededMinutes > 0 ? (
+                <div className="day-week-avail">
+                  <span className="dwa-icon">&#9203;</span>
+                  <span>
+                    <strong>{minutesToHHMM(daySummary.workNeededMinutes)}</strong> of work still needed
+                    (child in school {minutesToHHMM(daySummary.schoolMinutes)})
+                  </span>
+                </div>
+              ) : (
+                <div className="day-week-avail exact">
+                  <span>&#10003; School hours covered — {minutesToHHMM(daySummary.schoolMinutes)} worked</span>
+                </div>
+              )
+            )}
+
+            {/* Still needed today — only work + childcare credit the 7.76h day. */}
+            {daySummary.remainingMinutes > 0 && (
+              <div className="day-week-avail">
+                <span className="dwa-icon">&#9719;</span>
+                <span>
+                  <strong>{minutesToHHMM(daySummary.remainingMinutes)}</strong> still needed today
+                  ({percentOfDayTarget(daySummary.totalMinutes)}% of the day logged)
+                </span>
+              </div>
+            )}
+            {daySummary.overMinutes > 0 && (
+              <div className="day-week-avail over">
+                <span className="dwa-icon">&#9888;</span>
+                <span>
+                  <strong>{minutesToHHMM(daySummary.overMinutes)}</strong> over the day
+                  ({percentOfDayTarget(daySummary.totalMinutes)}% of the day logged)
+                </span>
+              </div>
+            )}
+            {daySummary.remainingMinutes === 0 && daySummary.overMinutes === 0 && daySummary.totalMinutes > 0 && (
+              <div className="day-week-avail exact">
+                <span>&#10003; Day is on target — 100% logged</span>
+              </div>
+            )}
 
             {/* Week availability */}
             {!weekSummary.isExact && weekRemainingPct > 0 && (

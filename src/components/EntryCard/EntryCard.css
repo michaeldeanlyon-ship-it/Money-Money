@@ -74,6 +74,7 @@
 .ec-badge.invoicery  { background: var(--color-invoicery); }
 .ec-badge.employment { background: var(--color-employment); }
 .ec-badge.childcare  { background: var(--color-childcare); }
+.ec-badge.school     { background: var(--color-school); }
 
 .ec-time {
   font-size: 0.82rem;

@@ -3,10 +3,16 @@ import {
   PERCENT_OPTIONS,
   BUCKET_MINUTES,
   DAY_TARGET_HOURS,
+  DAY_TARGET_MINUTES,
   WEEK_TARGET_HOURS,
   WEEK_TARGET_MINUTES,
   percentToMinutes,
   percentToDecimalHours,
+  percentOfDayTarget,
+  hoursToMinutes,
+  hoursMinutesToMinutes,
+  minutesToHM,
+  isExactBucket,
   minutesToNearestPercent,
   formatEntryDuration,
   minutesToHHMM,
@@ -30,6 +36,62 @@ describe('constants', () => {
   it('BUCKET_MINUTES maps 25→116, 50→233, 75→349, 100→466', () => {
     expect(BUCKET_MINUTES).toEqual({ 25: 116, 50: 233, 75: 349, 100: 466 })
   })
+  it('DAY_TARGET_MINUTES is 466 (a full 100% day)', () => {
+    expect(DAY_TARGET_MINUTES).toBe(466)
+  })
+})
+
+describe('hoursToMinutes', () => {
+  it('2.5 → 150', () => expect(hoursToMinutes(2.5)).toBe(150))
+  it('1 → 60', () => expect(hoursToMinutes(1)).toBe(60))
+  it('0.25 → 15', () => expect(hoursToMinutes(0.25)).toBe(15))
+  it('rounds to the nearest minute', () => expect(hoursToMinutes(1.008)).toBe(60))
+})
+
+describe('hoursMinutesToMinutes', () => {
+  it('6h 30m → 390', () => expect(hoursMinutesToMinutes(6, 30)).toBe(390))
+  it('accepts numeric strings from text inputs', () =>
+    expect(hoursMinutesToMinutes('6', '30')).toBe(390))
+  it('treats empty fields as zero', () => {
+    expect(hoursMinutesToMinutes('', '')).toBe(0)
+    expect(hoursMinutesToMinutes(2, '')).toBe(120)
+    expect(hoursMinutesToMinutes('', 45)).toBe(45)
+  })
+})
+
+describe('minutesToHM', () => {
+  it('390 → { hours: 6, minutes: 30 }', () =>
+    expect(minutesToHM(390)).toEqual({ hours: 6, minutes: 30 }))
+  it('0 → { hours: 0, minutes: 0 }', () =>
+    expect(minutesToHM(0)).toEqual({ hours: 0, minutes: 0 }))
+  it('45 → { hours: 0, minutes: 45 }', () =>
+    expect(minutesToHM(45)).toEqual({ hours: 0, minutes: 45 }))
+  it('round-trips with hoursMinutesToMinutes', () => {
+    for (const min of [0, 45, 116, 390, 466]) {
+      const { hours, minutes } = minutesToHM(min)
+      expect(hoursMinutesToMinutes(hours, minutes)).toBe(min)
+    }
+  })
+})
+
+describe('isExactBucket', () => {
+  it('is true for the four bucket minute values', () => {
+    expect(isExactBucket(116)).toBe(true)
+    expect(isExactBucket(233)).toBe(true)
+    expect(isExactBucket(349)).toBe(true)
+    expect(isExactBucket(466)).toBe(true)
+  })
+  it('is false for a non-bucket value', () => {
+    expect(isExactBucket(390)).toBe(false)
+    expect(isExactBucket(0)).toBe(false)
+    expect(isExactBucket(240)).toBe(false)
+  })
+})
+
+describe('percentOfDayTarget', () => {
+  it('full day → 100', () => expect(percentOfDayTarget(466)).toBe(100))
+  it('half day → 50', () => expect(percentOfDayTarget(233)).toBe(50))
+  it('0 → 0', () => expect(percentOfDayTarget(0)).toBe(0))
 })
 
 describe('percentToMinutes', () => {
@@ -144,6 +206,18 @@ describe('computeWeekSummary', () => {
     expect(result.percent).toBe(20)
     expect(result.remainingPercent).toBe(80)
   })
+
+  it('excludes school entries from the week total', () => {
+    const result = computeWeekSummary(
+      [date],
+      [
+        { date, type: 'job', minutes: 466 },
+        { date, type: 'school', minutes: 300 }, // must not count toward the week
+      ]
+    )
+    expect(result.totalMinutes).toBe(466)
+    expect(result.percent).toBe(20)
+  })
 })
 
 describe('computeDaySummary', () => {
@@ -161,6 +235,48 @@ describe('computeDaySummary', () => {
     expect(result.totalMinutes).toBe(815)
   })
 
+  it('excludes school from the credited total and reports work still owed', () => {
+    const entries = [
+      { date, type: 'job', minutes: 116 },        // work
+      { date, type: 'childcare', minutes: 116 },  // childcare
+      { date, type: 'school', minutes: 390 },      // school (does NOT credit the day)
+    ]
+    const result = computeDaySummary(date, entries)
+    expect(result.workMinutes).toBe(116)
+    expect(result.childcareMinutes).toBe(116)
+    expect(result.schoolMinutes).toBe(390)
+    // only work + childcare count toward the day target — school is excluded
+    expect(result.totalMinutes).toBe(232)
+    expect(result.remainingMinutes).toBe(234) // 466 − 232
+    expect(result.overMinutes).toBe(0)
+    // work still owed = school − work = 390 − 116
+    expect(result.workNeededMinutes).toBe(274)
+  })
+
+  it('workNeededMinutes is zero once work covers the school hours', () => {
+    const entries = [
+      { date, type: 'job', minutes: 466 },
+      { date, type: 'school', minutes: 300 },
+    ]
+    const result = computeDaySummary(date, entries)
+    expect(result.schoolMinutes).toBe(300)
+    // school excluded from the credited total even when fully worked
+    expect(result.totalMinutes).toBe(466)
+    expect(result.workNeededMinutes).toBe(0)
+  })
+
+  it('reports overMinutes when work + childcare exceed the 7.76h target', () => {
+    const entries = [
+      { date, type: 'job', minutes: 466 },
+      { date, type: 'childcare', minutes: 60 },
+      { date, type: 'school', minutes: 300 }, // still excluded from the total
+    ]
+    const result = computeDaySummary(date, entries)
+    expect(result.totalMinutes).toBe(526)
+    expect(result.remainingMinutes).toBe(0)
+    expect(result.overMinutes).toBe(60)
+  })
+
   it('ignores entries from other dates', () => {
     const entries = [
       { date, type: 'job', minutes: 466 },
@@ -175,6 +291,10 @@ describe('computeDaySummary', () => {
     const result = computeDaySummary(date, [])
     expect(result.workMinutes).toBe(0)
     expect(result.childcareMinutes).toBe(0)
+    expect(result.schoolMinutes).toBe(0)
     expect(result.totalMinutes).toBe(0)
+    expect(result.remainingMinutes).toBe(466)
+    expect(result.overMinutes).toBe(0)
+    expect(result.workNeededMinutes).toBe(0)
   })
 })

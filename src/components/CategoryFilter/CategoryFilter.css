@@ -43,3 +43,7 @@
 .cf-btn.cf-childcare.active {
   background: var(--color-childcare);
 }
+
+.cf-btn.cf-school.active {
+  background: var(--color-school);
+}

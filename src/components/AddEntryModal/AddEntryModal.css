@@ -180,6 +180,58 @@
   text-align: center;
 }
 
+/* % / h:m per-entry mode switch — mirrors .type-tabs */
+.mode-toggle {
+  display: inline-flex;
+  align-self: flex-start;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.mode-btn {
+  padding: 0.3rem 0.75rem;
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-btn.active {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* Hours + Minutes entry (School always; Job/Childcare in h:m mode) */
+.hm-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hm-field {
+  position: relative;
+  flex: 1;
+}
+
+.hm-field .hours-input {
+  width: 100%;
+  text-align: center;
+}
+
+.hm-unit {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
 .modal-footer {
   display: flex;
   gap: 0.6rem;

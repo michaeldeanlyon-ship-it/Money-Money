@@ -101,20 +101,86 @@ describe('AddEntryModal', () => {
     expect(arg.paidTimeName).toBeFalsy()
   })
 
-  it('editing a legacy entry pre-selects the nearest % bucket (240→50%)', () => {
+  it('School tab shows Hours and Minutes fields instead of percentage buttons', () => {
+    renderModal()
+    fireEvent.click(screen.getByRole('button', { name: 'School' }))
+    expect(screen.queryByRole('button', { name: '25%' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+    // two numeric fields (hours + minutes) are shown instead
+    expect(screen.getByLabelText('Hours')).toBeInTheDocument()
+    expect(screen.getByLabelText('Minutes')).toBeInTheDocument()
+  })
+
+  it('submitting School at 6h 30m sends type=school, minutes=390, no job fields', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined)
+    renderModal({ onSave })
+    fireEvent.click(screen.getByRole('button', { name: 'School' }))
+    fireEvent.change(screen.getByLabelText('Hours'), { target: { value: '6' } })
+    fireEvent.change(screen.getByLabelText('Minutes'), { target: { value: '30' } })
+    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(onSave).toHaveBeenCalledTimes(1)
+    const arg = onSave.mock.calls[0][0]
+    expect(arg.type).toBe('school')
+    expect(arg.minutes).toBe(390)
+    expect(arg.jobId).toBeFalsy()
+    expect(arg.jobName).toBeFalsy()
+    expect(arg.jobLabel).toBeFalsy()
+  })
+
+  it('editing a 390-min school entry pre-fills 6 hours and 30 minutes', () => {
+    renderModal({ initialEntry: { id: 42, type: 'school', minutes: 390 } })
+    expect(screen.getByLabelText('Hours')).toHaveValue(6)
+    expect(screen.getByLabelText('Minutes')).toHaveValue(30)
+  })
+
+  it('Job % / h:m toggle switches inputs; % saves the bucket, h:m saves typed minutes', async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined)
+    renderModal({ onSave })
+    fireEvent.click(screen.getByRole('button', { name: 'Job' }))
+    // new Job entry defaults to % mode: buckets shown, no h/m fields
+    expect(screen.getByRole('button', { name: '75%' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Hours')).not.toBeInTheDocument()
+    // switch to h:m mode
+    fireEvent.click(screen.getByRole('button', { name: 'h:m' }))
+    expect(screen.queryByRole('button', { name: '75%' })).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Hours'), { target: { value: '4' } })
+    fireEvent.change(screen.getByLabelText('Minutes'), { target: { value: '0' } })
+    fireEvent.click(screen.getByRole('button', { name: /^Save$/ }))
+    await Promise.resolve()
+    await Promise.resolve()
+    const arg = onSave.mock.calls[0][0]
+    expect(arg.type).toBe('job')
+    expect(arg.minutes).toBe(240)
+  })
+
+  it('editing an exact-bucket Job entry opens in % mode with that bucket active', () => {
+    const initialEntry = {
+      id: 7,
+      type: 'job',
+      job_id: 'j2',
+      job_name: 'Beta Co',
+      job_label: 'Frilans',
+      minutes: 233, // exact 50% bucket
+    }
+    renderModal({ initialEntry })
+    const btn50 = screen.getByRole('button', { name: '50%' })
+    expect(btn50.className).toMatch(/active/)
+  })
+
+  it('editing a non-bucket Job entry opens in h:m mode, pre-filled', () => {
     const initialEntry = {
       id: 99,
       type: 'job',
       job_id: 'j2',
       job_name: 'Beta Co',
       job_label: 'Frilans',
-      minutes: 240, // legacy 4h → nearest bucket is 50% (233)
+      minutes: 240, // not a bucket → h:m mode showing 4h 0m
     }
     renderModal({ initialEntry })
-    // 50% button should have the active class
-    const btn50 = screen.getByRole('button', { name: '50%' })
-    expect(btn50.className).toMatch(/active/)
-    const btn100 = screen.getByRole('button', { name: '100%' })
-    expect(btn100.className).not.toMatch(/active/)
+    expect(screen.queryByRole('button', { name: '50%' })).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Hours')).toHaveValue(4)
+    expect(screen.getByLabelText('Minutes')).toHaveValue(0)
   })
 })

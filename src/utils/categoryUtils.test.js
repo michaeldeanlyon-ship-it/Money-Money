@@ -4,13 +4,15 @@ import { CATEGORIES, entryCategory, matchesFilter } from './categoryUtils'
 const childcare = { type: 'childcare', minutes: 233 }
 const frilans   = { type: 'job', job_label: 'Frilans', minutes: 116 }
 const invoicery = { type: 'job', job_label: 'Invoicery', minutes: 466 }
+const school    = { type: 'school', minutes: 150 }
 
 describe('CATEGORIES', () => {
-  it('lists invoicery, frilans, childcare with display labels', () => {
+  it('lists invoicery, frilans, childcare, school with display labels', () => {
     expect(CATEGORIES).toEqual([
       { key: 'invoicery', label: 'Invoicery' },
       { key: 'frilans', label: 'Frilans' },
       { key: 'childcare', label: 'Childcare' },
+      { key: 'school', label: 'School' },
     ])
   })
 })
@@ -24,6 +26,9 @@ describe('entryCategory', () => {
   })
   it('maps Invoicery job entries to "invoicery"', () => {
     expect(entryCategory(invoicery)).toBe('invoicery')
+  })
+  it('maps school entries to "school"', () => {
+    expect(entryCategory(school)).toBe('school')
   })
 })
 

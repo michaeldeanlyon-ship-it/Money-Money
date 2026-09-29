@@ -13,6 +13,7 @@ const entries = [
   { id: 1, date: '2026-06-22', type: 'childcare', minutes: 233 },
   { id: 2, date: '2026-06-22', type: 'job', job_label: 'Frilans', minutes: 116 },
   { id: 3, date: '2026-06-22', type: 'job', job_label: 'Invoicery', minutes: 466 },
+  { id: 4, date: '2026-06-22', type: 'school', minutes: 150 },
 ]
 
 function renderGrid(filter) {
@@ -24,17 +25,27 @@ function renderGrid(filter) {
 }
 
 describe('MonthGrid filtering', () => {
-  it('shows all three pills when filter is "all"', () => {
+  it('shows all category pills when filter is "all"', () => {
     const { container } = renderGrid('all')
     expect(container.querySelector('.mg-pill-childcare')).toBeTruthy()
     expect(container.querySelector('.mg-pill-frilans')).toBeTruthy()
     expect(container.querySelector('.mg-pill-invoicery')).toBeTruthy()
+    expect(container.querySelector('.mg-pill-school')).toBeTruthy()
   })
 
   it('shows only frilans pills when filter is "frilans"', () => {
     const { container } = renderGrid('frilans')
     expect(container.querySelector('.mg-pill-frilans')).toBeTruthy()
     expect(container.querySelector('.mg-pill-childcare')).toBeNull()
+    expect(container.querySelector('.mg-pill-invoicery')).toBeNull()
+    expect(container.querySelector('.mg-pill-school')).toBeNull()
+  })
+
+  it('shows only school pills when filter is "school"', () => {
+    const { container } = renderGrid('school')
+    expect(container.querySelector('.mg-pill-school')).toBeTruthy()
+    expect(container.querySelector('.mg-pill-childcare')).toBeNull()
+    expect(container.querySelector('.mg-pill-frilans')).toBeNull()
     expect(container.querySelector('.mg-pill-invoicery')).toBeNull()
   })
 

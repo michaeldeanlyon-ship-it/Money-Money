@@ -116,5 +116,6 @@
 }
 
 .mg-pill-childcare { background: rgba(196,138,90,0.18);  color: var(--color-childcare); }
+.mg-pill-school    { background: rgba(58,157,148,0.18);  color: var(--color-school); }
 .mg-pill-frilans   { background: rgba(90,143,196,0.18);  color: var(--color-frilans); }
 .mg-pill-invoicery { background: rgba(155,109,181,0.18); color: var(--color-invoicery); }

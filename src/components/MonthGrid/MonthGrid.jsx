@@ -43,10 +43,12 @@ export default function MonthGrid({ weeks, entries, filter = 'all' }) {
             {days.map(({ date, isCurrentMonth }) => {
               const dayEntries = entries.filter(e => e.date === date)
               const childcare  = dayEntries.filter(e => e.type === 'childcare').reduce((s, e) => s + e.minutes, 0)
+              const school     = dayEntries.filter(e => e.type === 'school').reduce((s, e) => s + e.minutes, 0)
               const frilans    = dayEntries.filter(e => e.type === 'job' && e.job_label === 'Frilans').reduce((s, e) => s + e.minutes, 0)
               const invoicery  = dayEntries.filter(e => e.type === 'job' && e.job_label === 'Invoicery').reduce((s, e) => s + e.minutes, 0)
               const hasVisible =
                 (show('childcare') && childcare > 0) ||
+                (show('school') && school > 0) ||
                 (show('frilans') && frilans > 0) ||
                 (show('invoicery') && invoicery > 0)
 
@@ -62,6 +64,7 @@ export default function MonthGrid({ weeks, entries, filter = 'all' }) {
                   {hasVisible && (
                     <div className="mg-day-pills">
                       {show('childcare') && childcare > 0 && <span className="mg-pill mg-pill-childcare">{minutesToHHMM(childcare)}</span>}
+                      {show('school')    && school    > 0 && <span className="mg-pill mg-pill-school">{minutesToHHMM(school)}</span>}
                       {show('frilans')   && frilans   > 0 && <span className="mg-pill mg-pill-frilans">{minutesToHHMM(frilans)}</span>}
                       {show('invoicery') && invoicery > 0 && <span className="mg-pill mg-pill-invoicery">{minutesToHHMM(invoicery)}</span>}
                     </div>

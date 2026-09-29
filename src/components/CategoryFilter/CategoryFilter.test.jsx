@@ -12,13 +12,14 @@ beforeEach(() => {
 })
 
 describe('CategoryFilter', () => {
-  it('renders All + the three category buttons', () => {
+  it('renders All + every category button', () => {
     useAppContext.mockReturnValue({ filter: 'all', setFilter: vi.fn() })
     render(<CategoryFilter />)
     expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Invoicery' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Frilans' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Childcare' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'School' })).toBeInTheDocument()
   })
 
   it('marks the active button based on the current filter', () => {
@@ -42,5 +43,13 @@ describe('CategoryFilter', () => {
     render(<CategoryFilter />)
     screen.getByRole('button', { name: 'All' }).click()
     expect(setFilter).toHaveBeenCalledWith('all')
+  })
+
+  it('calls setFilter with "school" when School is clicked', () => {
+    const setFilter = vi.fn()
+    useAppContext.mockReturnValue({ filter: 'all', setFilter })
+    render(<CategoryFilter />)
+    screen.getByRole('button', { name: 'School' }).click()
+    expect(setFilter).toHaveBeenCalledWith('school')
   })
 })

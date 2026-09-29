@@ -11,12 +11,39 @@ export const BUCKET_MINUTES = PERCENT_OPTIONS.reduce((acc, pct) => {
   return acc
 }, {})
 
+// A full 100% day. Only Job work and Childcare credit against this target;
+// School is a required-work marker (see computeDaySummary) and does NOT count
+// toward the day.
+export const DAY_TARGET_MINUTES = BUCKET_MINUTES[100]
+
 // Five 100% days = full week. Using this (rather than 38.8h × 60) keeps
 // week% consistent with the day-percentage buckets.
-export const WEEK_TARGET_MINUTES = BUCKET_MINUTES[100] * 5
+export const WEEK_TARGET_MINUTES = DAY_TARGET_MINUTES * 5
 
 export function percentToMinutes(percent) {
   return BUCKET_MINUTES[percent]
+}
+
+// Legacy: school time was once entered as a single decimal-hours field.
+export function hoursToMinutes(hours) {
+  return Math.round((Number(hours) || 0) * 60)
+}
+
+// School (and h:m-mode Job/Childcare) time is entered as separate Hours + Minutes
+// fields. Inputs come from text boxes, so coerce and treat blanks as zero.
+export function hoursMinutesToMinutes(hours, minutes) {
+  return (Number(hours) || 0) * 60 + (Number(minutes) || 0)
+}
+
+// Split minutes back into { hours, minutes } to rehydrate the edit form.
+export function minutesToHM(minutes) {
+  const safe = Math.max(0, minutes || 0)
+  return { hours: Math.floor(safe / 60), minutes: safe % 60 }
+}
+
+// Whether a minute count exactly matches one of the 25/50/75/100 buckets.
+export function isExactBucket(minutes) {
+  return PERCENT_OPTIONS.some(pct => BUCKET_MINUTES[pct] === minutes)
 }
 
 export function percentToDecimalHours(percent) {
@@ -51,8 +78,16 @@ export function percentOfWeekTarget(minutes) {
   return Math.round((minutes / WEEK_TARGET_MINUTES) * 100)
 }
 
+export function percentOfDayTarget(minutes) {
+  return Math.round((minutes / DAY_TARGET_MINUTES) * 100)
+}
+
 export function computeWeekSummary(weekDates, entries) {
-  const weekEntries = entries.filter(e => weekDates.includes(e.date))
+  // School is a required-work marker, not a credit, so it never counts toward
+  // the week 100%.
+  const weekEntries = entries.filter(
+    e => weekDates.includes(e.date) && e.type !== 'school'
+  )
   const totalMinutes = weekEntries.reduce((sum, e) => sum + e.minutes, 0)
   const percent = percentOfWeekTarget(totalMinutes)
   const isOver = totalMinutes > WEEK_TARGET_MINUTES
@@ -72,9 +107,18 @@ export function computeDaySummary(dateStr, entries) {
   const childcareMinutes = dayEntries
     .filter(e => e.type === 'childcare')
     .reduce((sum, e) => sum + e.minutes, 0)
+  const schoolMinutes = dayEntries
+    .filter(e => e.type === 'school')
+    .reduce((sum, e) => sum + e.minutes, 0)
   const workMinutes = dayEntries
     .filter(e => e.type === 'job')
     .reduce((sum, e) => sum + e.minutes, 0)
-  const totalMinutes = dayEntries.reduce((sum, e) => sum + e.minutes, 0)
-  return { childcareMinutes, workMinutes, totalMinutes }
+  // Only work + childcare credit the day; school is excluded from the total.
+  const totalMinutes = workMinutes + childcareMinutes
+  const remainingMinutes = Math.max(0, DAY_TARGET_MINUTES - totalMinutes)
+  const overMinutes = Math.max(0, totalMinutes - DAY_TARGET_MINUTES)
+  // School time the parent must still cover with work: any school minutes not
+  // yet matched by work that day.
+  const workNeededMinutes = Math.max(0, schoolMinutes - workMinutes)
+  return { childcareMinutes, schoolMinutes, workMinutes, totalMinutes, remainingMinutes, overMinutes, workNeededMinutes }
 }

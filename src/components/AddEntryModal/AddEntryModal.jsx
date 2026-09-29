@@ -6,15 +6,27 @@ import {
   percentToMinutes,
   percentToDecimalHours,
   minutesToNearestPercent,
+  hoursMinutesToMinutes,
+  minutesToHM,
+  isExactBucket,
 } from '../../utils/timeUtils'
 import { formatDayLabel } from '../../utils/dateUtils'
 import './AddEntryModal.css'
 
 function initialType(initialEntry, preselectedJob) {
   if (initialEntry?.type === 'childcare') return 'childcare'
+  if (initialEntry?.type === 'school') return 'school'
   if (initialEntry?.type === 'job') return 'job'
   if (preselectedJob) return 'job'
   return 'job'
+}
+
+// School always uses h:m. Job/Childcare re-open in the mode they were made in:
+// an exact 25/50/75/100 bucket → % mode, anything else → h:m. New entries → %.
+function initialInputMode(initialEntry) {
+  if (initialEntry?.type === 'school') return 'hm'
+  if (initialEntry) return isExactBucket(initialEntry.minutes) ? 'percent' : 'hm'
+  return 'percent'
 }
 
 export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, initialEntry, preselectedJob }) {
@@ -27,6 +39,10 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
   const [percent, setPercent] = useState(
     initialEntry?.minutes ? minutesToNearestPercent(initialEntry.minutes) : 100
   )
+  const initialHM = initialEntry?.minutes ? minutesToHM(initialEntry.minutes) : null
+  const [hmHours, setHmHours] = useState(initialHM ? String(initialHM.hours) : '')
+  const [hmMinutes, setHmMinutes] = useState(initialHM ? String(initialHM.minutes) : '')
+  const [inputMode, setInputMode] = useState(initialInputMode(initialEntry))
   const [jobTimeSpent, setJobTimeSpent] = useState(null)
   const [saving, setSaving] = useState(false)
 
@@ -54,7 +70,9 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const mins = percentToMinutes(percent)
+    // School always uses h:m; Job/Childcare follow the per-entry mode toggle.
+    const useHm = type === 'school' || inputMode === 'hm'
+    const mins = useHm ? hoursMinutesToMinutes(hmHours, hmMinutes) : percentToMinutes(percent)
     if (!mins || mins <= 0) return
 
     setSaving(true)
@@ -101,6 +119,9 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
               <button type="button" className={`type-tab ${type === 'childcare' ? 'active' : ''}`} onClick={() => setType('childcare')}>
                 Child Care
               </button>
+              <button type="button" className={`type-tab ${type === 'school' ? 'active' : ''}`} onClick={() => setType('school')}>
+                School
+              </button>
             </div>
 
             {type === 'job' && (
@@ -141,19 +162,67 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
 
             <div className="form-field">
               <label>Time</label>
-              <div className="pct-row">
-                {PERCENT_OPTIONS.map(p => (
-                  <button
-                    key={p}
-                    type="button"
-                    className={`pct-btn ${percent === p ? 'active' : ''}`}
-                    onClick={() => setPercent(p)}
-                  >
-                    {p}%
-                  </button>
-                ))}
-              </div>
-              <div className="pct-preview">{percentToDecimalHours(percent).toFixed(2)}h</div>
+              {type === 'school' ? (
+                <>
+                  <HoursMinutesFields
+                    hours={hmHours}
+                    minutes={hmMinutes}
+                    onHours={setHmHours}
+                    onMinutes={setHmMinutes}
+                  />
+                  <div className="pct-preview">
+                    {minutesToHHMM(hoursMinutesToMinutes(hmHours, hmMinutes))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mode-toggle">
+                    <button
+                      type="button"
+                      className={`mode-btn ${inputMode === 'percent' ? 'active' : ''}`}
+                      onClick={() => setInputMode('percent')}
+                    >
+                      %
+                    </button>
+                    <button
+                      type="button"
+                      className={`mode-btn ${inputMode === 'hm' ? 'active' : ''}`}
+                      onClick={() => setInputMode('hm')}
+                    >
+                      h:m
+                    </button>
+                  </div>
+                  {inputMode === 'percent' ? (
+                    <>
+                      <div className="pct-row">
+                        {PERCENT_OPTIONS.map(p => (
+                          <button
+                            key={p}
+                            type="button"
+                            className={`pct-btn ${percent === p ? 'active' : ''}`}
+                            onClick={() => setPercent(p)}
+                          >
+                            {p}%
+                          </button>
+                        ))}
+                      </div>
+                      <div className="pct-preview">{percentToDecimalHours(percent).toFixed(2)}h</div>
+                    </>
+                  ) : (
+                    <>
+                      <HoursMinutesFields
+                        hours={hmHours}
+                        minutes={hmMinutes}
+                        onHours={setHmHours}
+                        onMinutes={setHmMinutes}
+                      />
+                      <div className="pct-preview">
+                        {minutesToHHMM(hoursMinutesToMinutes(hmHours, hmMinutes))}
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
@@ -164,6 +233,41 @@ export default function AddEntryModal({ date, jobs, onSave, onUpdate, onClose, i
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+function HoursMinutesFields({ hours, minutes, onHours, onMinutes }) {
+  return (
+    <div className="hm-row">
+      <div className="hm-field">
+        <input
+          className="hours-input"
+          type="number"
+          inputMode="numeric"
+          min="0"
+          placeholder="0"
+          aria-label="Hours"
+          value={hours}
+          onChange={e => onHours(e.target.value)}
+          autoFocus
+        />
+        <span className="hm-unit">h</span>
+      </div>
+      <div className="hm-field">
+        <input
+          className="hours-input"
+          type="number"
+          inputMode="numeric"
+          min="0"
+          max="59"
+          placeholder="0"
+          aria-label="Minutes"
+          value={minutes}
+          onChange={e => onMinutes(e.target.value)}
+        />
+        <span className="hm-unit">m</span>
       </div>
     </div>
   )
