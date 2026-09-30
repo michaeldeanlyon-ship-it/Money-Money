@@ -22,6 +22,7 @@ export default function Layout({ children }) {
           <CategoryFilter />
         </div>
         <nav className="nav-right">
+          <Link to="/report" className="nav-jobs-link">Report</Link>
           <Link to="/jobs" className="nav-jobs-link">Jobs</Link>
           <div className="nav-user">
             {avatarUrl

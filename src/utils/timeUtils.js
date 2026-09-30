@@ -65,6 +65,27 @@ export function formatEntryDuration(minutes) {
   return `${pct}% · ${minutesToHHMM(minutes)}`
 }
 
+// Report/invoice-friendly clock format: "H:MM" with zero-padded minutes
+// (150 -> "2:30", 60 -> "1:00", 45 -> "0:45"). Distinct from the "2h 30m" style
+// so it reads cleanly next to a decimal-hours column.
+export function minutesToClock(minutes) {
+  const safe = Math.max(0, minutes || 0)
+  const h = Math.floor(safe / 60)
+  const m = safe % 60
+  return `${h}:${String(m).padStart(2, '0')}`
+}
+
+// Decimal hours as a number (150 -> 2.5). Callers that need a fixed-precision
+// string use formatDecimalHours instead.
+export function minutesToDecimalHours(minutes) {
+  return Math.max(0, minutes || 0) / 60
+}
+
+// Decimal hours to two places (150 -> "2.50").
+export function formatDecimalHours(minutes) {
+  return minutesToDecimalHours(minutes).toFixed(2)
+}
+
 export function minutesToHHMM(minutes) {
   if (!minutes || minutes <= 0) return '0m'
   const h = Math.floor(minutes / 60)

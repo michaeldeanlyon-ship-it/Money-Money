@@ -6,6 +6,7 @@ import WeekPage from './pages/WeekPage'
 import MonthPage from './pages/MonthPage'
 import DayPage from './pages/DayPage'
 import JobsPage from './pages/JobsPage'
+import ReportPage from './pages/ReportPage'
 import { useMigration } from './hooks/useMigration'
 import { today, getISOWeek } from './utils/dateUtils'
 
@@ -34,6 +35,7 @@ function AppRoutes() {
         <Route path="/month/:year/:month" element={<MonthPage />} />
         <Route path="/day/:date" element={<DayPage />} />
         <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/report" element={<ReportPage />} />
         <Route path="*" element={<DefaultRedirect />} />
       </Routes>
     </Layout>
